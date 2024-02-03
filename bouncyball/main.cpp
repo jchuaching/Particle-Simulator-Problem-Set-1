@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 
+
 // Constants for the GUI layout
 const unsigned int WINDOW_WIDTH = 1280;
 const unsigned int WINDOW_HEIGHT = 720;
@@ -75,6 +76,20 @@ sf::RectangleShape createTextButton(float x, float y, float width, float height,
 
     return button;
 }
+
+class Ball {
+public:
+    sf::CircleShape shape;
+
+    Ball(float x, float y, float radius, sf::Color color) : shape(radius) {
+        shape.setPosition(x, y);
+        shape.setFillColor(color);
+    }
+
+    void draw(sf::RenderWindow& window) {
+        window.draw(shape);
+    }
+};
 
 class InputBox {
 public:
@@ -201,6 +216,8 @@ int main() {
     // Add Wall button with label
     buttons.push_back(createTextButton(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 590, SIDEBAR_WIDTH - 20, INPUT_HEIGHT, "Add", font, buttonTexts));
 
+    std::vector<Ball> balls;  // Vector to hold all the balls
+
     // Main event loop
     while (window.isOpen()) {
         sf::Event event;
@@ -212,6 +229,24 @@ int main() {
             // Check for mouse clicks to activate input boxes
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
+                    // Check if the "Add" button for balls was clicked
+                    if (buttons[0].getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+                        // Assuming inputs are valid numbers for simplicity; add validation as needed
+                        float x = std::stof(inputBoxes[0].inputString);
+                        float y = std::stof(inputBoxes[1].inputString);
+                        float radius = 10.0f;  // Example radius, you would get this from input or define it
+                        sf::Color color = sf::Color{pink2};  // Example color, you could make this selectable
+
+                        // Create a new ball and add it to the vector
+                        balls.emplace_back(x, y, radius, color);
+
+                        // Clear the input fields
+                        for (int i = 0; i < 4; ++i) {
+                            inputBoxes[i].inputString.clear();
+                            inputBoxes[i].text.setString("");
+                        }
+                    }
+
                     for (auto& box : inputBoxes) {
                         if (box.box.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                             box.setActive(true);
@@ -255,6 +290,9 @@ int main() {
         }
 
         // TODO: Draw balls and walls inside the display area
+        for (auto& ball : balls) {
+            ball.draw(window);
+        }
 
         window.display(); // Display everything we have drawn
     }
