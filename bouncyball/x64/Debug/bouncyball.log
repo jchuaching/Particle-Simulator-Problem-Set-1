@@ -1,0 +1,4 @@
+﻿  main.cpp
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(263,83): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(270,84): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+  bouncyball.vcxproj -> C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\x64\Debug\bouncyball.exe
