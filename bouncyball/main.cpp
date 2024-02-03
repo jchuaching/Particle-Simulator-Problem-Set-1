@@ -205,7 +205,7 @@ const unsigned int WINDOW_WIDTH = 1280;
 const unsigned int WINDOW_HEIGHT = 720;
 const unsigned int SIDEBAR_WIDTH = 320;
 const unsigned int INPUT_HEIGHT = 40;
-const sf::Color INPUT_BG_COLOR(200, 200, 200);  // Light grey
+const sf::Color INPUT_BG_COLOR(255, 255, 255);  // Light grey
 const sf::Color BUTTON_BG_COLOR(255, 192, 203); // Light pink
 const sf::Color pink5(230, 139, 190);
 const sf::Color pink4(238, 161, 205);
@@ -218,8 +218,18 @@ sf::RectangleShape createInputBox(float x, float y, float width, float height) {
     sf::RectangleShape box;
     box.setSize(sf::Vector2f(width, height));
     box.setPosition(x, y);
-    box.setFillColor(INPUT_BG_COLOR);
+    box.setFillColor(pink3);
     return box;
+}
+
+sf::Text createLabel(const std::string& content, sf::Font& font, unsigned int size, float x, float y) {
+    sf::Text label;
+    label.setFont(font);
+    label.setString(content);
+    label.setCharacterSize(size);
+    label.setFillColor(sf::Color::Black);
+    label.setPosition(x, y);
+    return label;
 }
 
 // Function to create a button
@@ -227,7 +237,7 @@ sf::RectangleShape createButton(float x, float y, float width, float height) {
     sf::RectangleShape button;
     button.setSize(sf::Vector2f(width, height));
     button.setPosition(x, y);
-    button.setFillColor(BUTTON_BG_COLOR);
+    button.setFillColor(pink4);
     return button;
 }
 
@@ -246,13 +256,10 @@ int main() {
         return -1;
     }
 
-    // Initialize text with content, font, and size
-    sf::Text ballsTitle("Balls", font, 24);
-    sf::Text wallsTitle("Walls", font, 24);
-    ballsTitle.setFillColor(sf::Color::Black);
-    wallsTitle.setFillColor(sf::Color::Black);
+    // Initialize text labels for the sections
+    sf::Text ballsTitle = createLabel("Balls", font, 24, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
+    sf::Text wallsTitle = createLabel("Walls", font, 24, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 380 - 30);
 
-    ballsTitle.setPosition(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 50 * (INPUT_HEIGHT + 10));
 
     // Define input boxes and buttons for the balls and walls
     std::vector<sf::RectangleShape> inputBoxes;
@@ -260,18 +267,18 @@ int main() {
 
     // Create input boxes for Balls
     for (int i = 0; i < 4; ++i) {
-        inputBoxes.push_back(createInputBox(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 50 + i * (INPUT_HEIGHT + 10), SIDEBAR_WIDTH - 20, INPUT_HEIGHT));
+        inputBoxes.push_back(createInputBox(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 60 + i * (INPUT_HEIGHT + 10), SIDEBAR_WIDTH - 20, INPUT_HEIGHT));
     }
     // Create the Add Ball button
-    buttons.push_back(createButton(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 50 + 4 * (INPUT_HEIGHT + 10), SIDEBAR_WIDTH - 20, INPUT_HEIGHT));
+    buttons.push_back(createButton(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 60 + 4 * (INPUT_HEIGHT + 10), SIDEBAR_WIDTH - 20, INPUT_HEIGHT));
 
     // Create input boxes for Walls
     for (int i = 0; i < 4; ++i) {
-        inputBoxes.push_back(createInputBox(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 300 + i * (INPUT_HEIGHT + 10), SIDEBAR_WIDTH - 20, INPUT_HEIGHT));
+        inputBoxes.push_back(createInputBox(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 390 + i * (INPUT_HEIGHT + 10), SIDEBAR_WIDTH - 20, INPUT_HEIGHT));
     }
     // Create the Add Wall button
-    buttons.push_back(createButton(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 300 + 4 * (INPUT_HEIGHT + 10), SIDEBAR_WIDTH - 20, INPUT_HEIGHT));
-
+    buttons.push_back(createButton(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 390 + 4 * (INPUT_HEIGHT + 10), SIDEBAR_WIDTH - 20, INPUT_HEIGHT));
+    
     // Main event loop
     while (window.isOpen()) {
         sf::Event event;
@@ -287,6 +294,10 @@ int main() {
 
         // Draw the display area
         window.draw(displayArea);
+
+        // Draw the titles
+        window.draw(ballsTitle);
+        window.draw(wallsTitle);
 
         // Draw input boxes and buttons
         for (const auto& box : inputBoxes) {
