@@ -1,6 +1,10 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
+#include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 
 // Constants for the GUI layout
@@ -80,14 +84,77 @@ sf::RectangleShape createTextButton(float x, float y, float width, float height,
 class Ball {
 public:
     sf::CircleShape shape;
+    float vx, vy; // Velocity components
 
-    Ball(float x, float y, float radius, sf::Color color) : shape(radius) {
+    Ball(float x, float y, float radius, sf::Color color, float speed, float angleInDegrees) : shape(radius) {
         shape.setPosition(x, y);
         shape.setFillColor(color);
+
+        // Convert angle from degrees to radians
+        float angleInRadians = angleInDegrees * (M_PI / 180.0f);
+
+        // Calculate velocity components based on speed and angle
+        vx = speed * std::cos(angleInRadians);
+        vy = speed * std::sin(angleInRadians);
     }
 
     void draw(sf::RenderWindow& window) {
         window.draw(shape);
+    }
+
+    // Function to update the ball position and check for boundary collisions
+    void update(const sf::RectangleShape& boundary) {
+        // Move the ball
+        shape.move(vx, vy);
+
+        // Get the position of the ball
+        sf::Vector2f position = shape.getPosition();
+
+        // Check for left or right wall collisions
+        if (position.x < boundary.getPosition().x) {
+            position.x = boundary.getPosition().x;
+            vx = -vx;
+        }
+        else if (position.x + shape.getRadius() * 2 > boundary.getPosition().x + boundary.getSize().x) {
+            position.x = boundary.getPosition().x + boundary.getSize().x - shape.getRadius() * 2;
+            vx = -vx;
+        }
+
+        // Check for top or bottom wall collisions
+        if (position.y < boundary.getPosition().y) {
+            position.y = boundary.getPosition().y;
+            vy = -vy;
+        }
+        else if (position.y + shape.getRadius() * 2 > boundary.getPosition().y + boundary.getSize().y) {
+            position.y = boundary.getPosition().y + boundary.getSize().y - shape.getRadius() * 2;
+            vy = -vy;
+        }
+
+        // Wall collision detection and response
+        //for (const auto& wall : walls) {
+            // Here you need to implement the logic for line-circle intersection
+            // and reflect the ball's velocity if a collision is detected
+            // This is a more complex problem that involves some math
+            // You may need to refer to an algorithm for line-circle collision detection
+        //}
+
+
+        // Set the new position of the ball
+        shape.setPosition(position);
+    }
+};
+
+class Wall {
+public:
+    sf::Vertex line[2];
+
+    Wall(sf::Vector2f start, sf::Vector2f end) {
+        line[0] = sf::Vertex(start);
+        line[1] = sf::Vertex(end);
+    }
+
+    void draw(sf::RenderWindow& window) {
+        window.draw(line, 2, sf::Lines);
     }
 };
 
@@ -173,6 +240,9 @@ public:
     }
 };
 
+// Add a global vector to store walls
+std::vector<Wall> walls;
+
 int main() {
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Particle Simulator");
@@ -231,14 +301,18 @@ int main() {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     // Check if the "Add" button for balls was clicked
                     if (buttons[0].getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
+                        // Then, modify the section where you add a new ball
                         // Assuming inputs are valid numbers for simplicity; add validation as needed
                         float x = std::stof(inputBoxes[0].inputString);
                         float y = std::stof(inputBoxes[1].inputString);
-                        float radius = 10.0f;  // Example radius, you would get this from input or define it
-                        sf::Color color = sf::Color{pink2};  // Example color, you could make this selectable
+                        float angle = std::stof(inputBoxes[2].inputString); // Angle in degrees
+                        float speed = std::stof(inputBoxes[3].inputString); // Speed
+                        float radius = 10.0f; // Example radius, you would get this from input or define it
+                        sf::Color color = sf::Color{ pink2 }; // Example color, you could make this selectable
+
 
                         // Create a new ball and add it to the vector
-                        balls.emplace_back(x, y, radius, color);
+                        balls.emplace_back(x, y, radius, color, speed, angle);
 
                         // Clear the input fields
                         for (int i = 0; i < 4; ++i) {
@@ -264,6 +338,11 @@ int main() {
                     box.handleEvent(event);
                 }
             }
+        }
+
+        // Update the main loop to call the update method for each ball
+        for (auto& ball : balls) {
+            ball.update(displayArea); // Update the position of each ball
         }
 
         window.clear(pink5); // Clear the window

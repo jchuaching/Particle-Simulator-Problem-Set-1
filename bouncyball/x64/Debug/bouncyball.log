@@ -1,7 +1,8 @@
 ﻿  main.cpp
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(126,76): warning C4244: 'argument': conversion from 'unsigned int' to 'T', possible loss of data
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(126,76): warning C4244:         with
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(126,76): warning C4244:         [
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(126,76): warning C4244:             T=float
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(126,76): warning C4244:         ]
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(94,30): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(193,76): warning C4244: 'argument': conversion from 'unsigned int' to 'T', possible loss of data
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(193,76): warning C4244:         with
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(193,76): warning C4244:         [
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(193,76): warning C4244:             T=float
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(193,76): warning C4244:         ]
   bouncyball.vcxproj -> C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\x64\Debug\bouncyball.exe

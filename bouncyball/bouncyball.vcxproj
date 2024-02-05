@@ -140,6 +140,9 @@
   <ItemGroup>
     <Font Include="res\Inter-Regular.ttf" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\SFML\Graphics.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
