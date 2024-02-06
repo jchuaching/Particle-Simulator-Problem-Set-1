@@ -20,6 +20,7 @@ const sf::Color pink3(244, 184, 218);
 const sf::Color pink2(249, 206, 231);
 const sf::Color pink1(253, 228, 242);
 
+
 // Function to create an input box
 sf::RectangleShape createInputBox(float x, float y, float width, float height) {
     sf::RectangleShape box;
@@ -116,6 +117,17 @@ public:
     }
 };
 
+sf::Vector2f getWallNormal(const Wall& wall) {
+    // Calculate direction vector of the wall
+    sf::Vector2f direction = wall.end - wall.start;
+    // Calculate normal (perpendicular) vector
+    sf::Vector2f normal(-direction.y, direction.x);
+    // Normalize the normal vector
+    float length = std::sqrt(normal.x * normal.x + normal.y * normal.y);
+    normal /= length;
+    return normal;
+}
+
 class Ball {
 public:
     sf::CircleShape shape;
@@ -137,61 +149,61 @@ public:
         window.draw(shape);
     }
 
-    // Function to update the ball position and check for boundary collisions
-    void update(const sf::RectangleShape& boundary, const std::vector<Wall>& walls) {
-        // Move the ball
-        shape.move(vx, vy);
+// Function to update the ball position and check for boundary collisions
+void update(const sf::RectangleShape& boundary, const std::vector<Wall>& walls) {
+    
+    // Move ball with current velocity
+    sf::Vector2f newPosition = shape.getPosition() + sf::Vector2f(vx, vy);
 
-        // Get the position of the ball
-        sf::Vector2f position = shape.getPosition();
 
-        // Check for left or right wall collisions
-        if (position.x < boundary.getPosition().x) {
-            position.x = boundary.getPosition().x;
-            vx = -vx;
-        }
-        else if (position.x + shape.getRadius() * 2 > boundary.getPosition().x + boundary.getSize().x) {
-            position.x = boundary.getPosition().x + boundary.getSize().x - shape.getRadius() * 2;
-            vx = -vx;
-        }
+    // Adjust for ball radius in boundary collision detection
+    float leftBound = boundary.getPosition().x + shape.getRadius();
+    float rightBound = boundary.getPosition().x + boundary.getSize().x - shape.getRadius() * 2;
+    float topBound = boundary.getPosition().y + shape.getRadius();
+    float bottomBound = boundary.getPosition().y + boundary.getSize().y - shape.getRadius() * 2;
 
-        // Check for top or bottom wall collisions
-        if (position.y < boundary.getPosition().y) {
-            position.y = boundary.getPosition().y;
-            vy = -vy;
-        }
-        else if (position.y + shape.getRadius() * 2 > boundary.getPosition().y + boundary.getSize().y) {
-            position.y = boundary.getPosition().y + boundary.getSize().y - shape.getRadius() * 2;
-            vy = -vy;
-        }
+    if (newPosition.x < leftBound || newPosition.x > rightBound) {
+        vx = -vx; // Reverse horizontal velocity
+        // Adjust newPosition to prevent sticking
+        newPosition.x = (newPosition.x < leftBound) ? leftBound : rightBound;
+    }
 
-        sf::Vector2f ballCenter(shape.getPosition().x + shape.getRadius(), shape.getPosition().y + shape.getRadius());
+    if (newPosition.y < topBound || newPosition.y > bottomBound) {
+        vy = -vy; // Reverse vertical velocity
+        // Adjust newPosition to prevent sticking
+        newPosition.y = (newPosition.y < topBound) ? topBound : bottomBound;
+    }
 
-        for (const auto& wall : walls) {
-            // Assuming the wall's normal points to the right (positive x direction)
-            sf::Vector2f wallNormal(0.f, -1.f); // Modify this according to how you store the wall's orientation
+    // Wall collision detection and handling
+    for (const auto& wall : walls) {
+        sf::Vector2f wallNormal = getWallNormal(wall);
+        sf::Vector2f ballCenter = newPosition + sf::Vector2f(shape.getRadius(), shape.getRadius());
+        float distance = distanceFromPointToLine(wall.start, wall.end, ballCenter);
 
-            // Calculate the minimum distance from the ball's center to the line defined by the wall
-            float distance = distanceFromPointToLine(wall.start, wall.end, ballCenter); // This requires calculating the line equation from the wall's endpoints and then finding the shortest distance from the ball's center to this line
+        if (distance <= shape.getRadius()) {
+            // Project ball center onto wall line to find closest point on line
+            sf::Vector2f direction = wall.end - wall.start;
+            sf::Vector2f unitDirection = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
+            float t = ((ballCenter - wall.start).x * unitDirection.x + (ballCenter - wall.start).y * unitDirection.y) / (direction.x * unitDirection.x + direction.y * unitDirection.y);
 
-            // If the distance is less than the ball's radius, we have a collision
-            if (distance < shape.getRadius()) {
-                // Calculate reflection vector
-                sf::Vector2f reflectionVector = reflect(sf::Vector2f(vx, vy), wallNormal);
+            // Ensure that the collision point is within the segment
+            if (t >= 0.0f && t <= 1.0f) {
+                // Reflect the velocity
+                sf::Vector2f reflection = reflect(sf::Vector2f(vx, vy), wallNormal);
+                vx = reflection.x;
+                vy = reflection.y;
 
-                // Update the ball's velocity
-                vx = reflectionVector.x;
-                vy = reflectionVector.y;
-
-                // Move the ball out of the wall if embedded
-                shape.move(vx, vy);
+                // Adjust newPosition to avoid "sticking" to the wall
+                newPosition = shape.getPosition() + sf::Vector2f(vx, vy);
             }
         }
-
-        // Set the new position of the ball
-        shape.setPosition(position);
     }
+
+    shape.setPosition(newPosition);
+}
+
 };
+
 
 class InputBox {
 public:
@@ -288,10 +300,12 @@ int main() {
     displayArea.setPosition(0, 0);
 
     sf::Font font;
-    if (!font.loadFromFile("res/Inter-Regular.ttf")) {
-        std::cerr << "Failed to load font!" << std::endl;
-        return -1;
-    }
+
+    if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
+    std::cout << "Failed to load font!" << std::endl;
+    return -1;
+}
+
 
     // Initialize text labels for the sections
     sf::Text ballsTitle = createLabel("Balls", font, 24, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
