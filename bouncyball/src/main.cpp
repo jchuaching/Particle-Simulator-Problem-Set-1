@@ -322,7 +322,7 @@ int main() {
 
     sf::Font font;
 
-    if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
+    if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf")) {
     std::cout << "Failed to load font!" << std::endl;
     return -1;
 }
@@ -382,7 +382,7 @@ int main() {
                     float y = std::stof(inputBoxes[1].inputString);
                     float angle = std::stof(inputBoxes[2].inputString); // Angle in degrees
                     float speed = std::stof(inputBoxes[3].inputString); // Speed
-                    float radius = 10.0f; // Example radius, you would get this from input or define it
+                    float radius = 4.0f; // Example radius, you would get this from input or define it
                     sf::Color color = sf::Color{ pink2 }; // Example color, you could make this selectable
 
 
