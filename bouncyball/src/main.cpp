@@ -2,10 +2,10 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <algorithm> 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-
 
 // Constants for the GUI layout
 const unsigned int WINDOW_WIDTH = 1280;
@@ -149,58 +149,79 @@ public:
         window.draw(shape);
     }
 
+bool lineIntersect(sf::Vector2f p1, sf::Vector2f p2, sf::Vector2f p3, sf::Vector2f p4, sf::Vector2f* intersection = nullptr) {
+    float s1_x = p2.x - p1.x;
+    float s1_y = p2.y - p1.y;
+    float s2_x = p4.x - p3.x;
+    float s2_y = p4.y - p3.y;
+
+    float s, t;
+    s = (-s1_y * (p1.x - p3.x) + s1_x * (p1.y - p3.y)) / (-s2_x * s1_y + s1_x * s2_y);
+    t = ( s2_x * (p1.y - p3.y) - s2_y * (p1.x - p3.x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+    if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
+        if (intersection != nullptr) {
+            intersection->x = p1.x + (t * s1_x);
+            intersection->y = p1.y + (t * s1_y);
+        }
+        return true;
+    }
+
+    return false; // No collision
+}
+
 // Function to update the ball position and check for boundary collisions
-void update(const sf::RectangleShape& boundary, const std::vector<Wall>& walls) {
-    
-    // Move ball with current velocity
-    sf::Vector2f newPosition = shape.getPosition() + sf::Vector2f(vx, vy);
+void update(const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime) {
+    // Calculate the trajectory line of the ball for this frame
+    sf::Vector2f startPosition = shape.getPosition();
+    sf::Vector2f endPosition = startPosition + sf::Vector2f(vx * deltaTime, vy * deltaTime);
 
-
-    // Adjust for ball radius in boundary collision detection
+    // Check boundary collision with adjusted ball radius
     float leftBound = boundary.getPosition().x + shape.getRadius();
     float rightBound = boundary.getPosition().x + boundary.getSize().x - shape.getRadius() * 2;
     float topBound = boundary.getPosition().y + shape.getRadius();
     float bottomBound = boundary.getPosition().y + boundary.getSize().y - shape.getRadius() * 2;
 
-    if (newPosition.x < leftBound || newPosition.x > rightBound) {
+    if (endPosition.x < leftBound || endPosition.x > rightBound) {
         vx = -vx; // Reverse horizontal velocity
-        // Adjust newPosition to prevent sticking
-        newPosition.x = (newPosition.x < leftBound) ? leftBound : rightBound;
+        endPosition.x = (endPosition.x < leftBound) ? leftBound : rightBound;
     }
 
-    if (newPosition.y < topBound || newPosition.y > bottomBound) {
+    if (endPosition.y < topBound || endPosition.y > bottomBound) {
         vy = -vy; // Reverse vertical velocity
-        // Adjust newPosition to prevent sticking
-        newPosition.y = (newPosition.y < topBound) ? topBound : bottomBound;
+        endPosition.y = (endPosition.y < topBound) ? topBound : bottomBound;
     }
 
-    // Wall collision detection and handling
+    // Now, handle wall collisions
+    bool collisionDetected = false;
+    sf::Vector2f collisionPoint;
+    sf::Vector2f wallNormal;
     for (const auto& wall : walls) {
-        sf::Vector2f wallNormal = getWallNormal(wall);
-        sf::Vector2f ballCenter = newPosition + sf::Vector2f(shape.getRadius(), shape.getRadius());
-        float distance = distanceFromPointToLine(wall.start, wall.end, ballCenter);
-
-        if (distance <= shape.getRadius()) {
-            // Project ball center onto wall line to find closest point on line
-            sf::Vector2f direction = wall.end - wall.start;
-            sf::Vector2f unitDirection = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
-            float t = ((ballCenter - wall.start).x * unitDirection.x + (ballCenter - wall.start).y * unitDirection.y) / (direction.x * unitDirection.x + direction.y * unitDirection.y);
-
-            // Ensure that the collision point is within the segment
-            if (t >= 0.0f && t <= 1.0f) {
-                // Reflect the velocity
-                sf::Vector2f reflection = reflect(sf::Vector2f(vx, vy), wallNormal);
-                vx = reflection.x;
-                vy = reflection.y;
-
-                // Adjust newPosition to avoid "sticking" to the wall
-                newPosition = shape.getPosition() + sf::Vector2f(vx, vy);
-            }
+        if (lineIntersect(startPosition, endPosition, wall.start, wall.end, &collisionPoint)) {
+            // Collision detected
+            collisionDetected = true;
+            wallNormal = getWallNormal(wall);
+            break;
         }
     }
 
-    shape.setPosition(newPosition);
+    if (collisionDetected) {
+        // Reflect the velocity vector off the wall's normal vector
+        sf::Vector2f incomingVelocity(vx, vy);
+        sf::Vector2f reflectedVelocity = reflect(incomingVelocity, wallNormal);
+        vx = reflectedVelocity.x;
+        vy = reflectedVelocity.y;
+
+        // Adjust the ball's position to the point of collision plus a little bit back,
+        // so it won't collide again in the next frame due to numerical errors
+        sf::Vector2f newPosition = collisionPoint - (incomingVelocity * deltaTime * 0.5f);
+        shape.setPosition(newPosition);
+    } else {
+        // If no collision was detected, simply move the ball to its new position
+        shape.setPosition(endPosition);
+    }
 }
+
 
 };
 
@@ -337,9 +358,15 @@ int main() {
 
     std::vector<Ball> balls;  // Vector to hold all the balls
 
+    sf::Clock clock; 
+
     // Main event loop
     while (window.isOpen()) {
         sf::Event event;
+
+        sf::Time elapsed = clock.restart(); // Restart the clock and get the elapsed time
+        float deltaTime = elapsed.asSeconds(); // Convert elapsed time to seconds
+
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
@@ -413,10 +440,10 @@ int main() {
             }
         }
 
-        // Update the main loop to call the update method for each ball
+         // Update each ball with deltaTime
         for (auto& ball : balls) {
-            ball.update(displayArea, walls); // Update the position of each ball
-        }
+        ball.update(displayArea, walls, deltaTime); // Pass deltaTime to update method
+    }
 
         window.clear(pink5); // Clear the window
 
