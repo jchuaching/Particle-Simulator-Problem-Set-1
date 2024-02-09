@@ -133,8 +133,13 @@ public:
     sf::CircleShape shape;
     float vx, vy; // Velocity components
 
-    Ball(float x, float y, float radius, sf::Color color, float speed, float angleInDegrees) : shape(radius) {
-        shape.setPosition(x, y);
+    
+    Ball(float x, float y, float radius, sf::Color color, float speed, float angleInDegrees)
+    : shape(radius) {
+        // Invert the y coordinate to match the requested coordinate system
+        float invertedY = WINDOW_HEIGHT - y; // Subtract y from WINDOW_HEIGHT to invert
+
+        shape.setPosition(x, invertedY - radius * 2); // Adjust for radius to ensure the ball spawns from the correct location
         shape.setFillColor(color);
 
         // Convert angle from degrees to radians
@@ -142,8 +147,8 @@ public:
 
         // Calculate velocity components based on speed and angle
         vx = speed * std::cos(angleInRadians);
-        vy = speed * std::sin(angleInRadians);
-    }
+        vy = -speed * std::sin(angleInRadians); // Invert vy because the coordinate system is inverted
+}
 
     void draw(sf::RenderWindow& window) {
         window.draw(shape);
@@ -322,10 +327,10 @@ int main() {
 
     sf::Font font;
 
-    if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf")) {
+      if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
     std::cout << "Failed to load font!" << std::endl;
     return -1;
-}
+    }
 
 
     // Initialize text labels for the sections
@@ -407,8 +412,8 @@ int main() {
                     // Check if the input values are within the display area
                     if (displayArea.getGlobalBounds().contains(x1, y1) && displayArea.getGlobalBounds().contains(x2, y2)) {
                         // Create a new wall and add it to the vector
-                        walls.emplace_back(sf::Vector2f(x1, y1), sf::Vector2f(x2, y2));
-
+                        walls.emplace_back(sf::Vector2f(x1, WINDOW_HEIGHT - y1), sf::Vector2f(x2, WINDOW_HEIGHT - y2));
+                    
                         // Clear the input fields
                         for (int i = 4; i < 8; ++i) {
                             inputBoxes[i].inputString.clear();
