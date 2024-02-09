@@ -317,6 +317,15 @@ public:
 std::vector<Wall> walls;
 
 int main() {
+
+// FPS calculation and display
+    unsigned int frameCount = 0;
+    sf::Clock fpsClock;
+    sf::Text fpsText;
+    sf::Clock displayClock; // Clock to update the display every 0.5 seconds
+
+
+
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Particle Simulator");
 
@@ -364,6 +373,12 @@ int main() {
     std::vector<Ball> balls;  // Vector to hold all the balls
 
     sf::Clock clock; 
+
+    // Initialize FPS text
+    fpsText.setFont(font);
+    fpsText.setCharacterSize(20); // Adjust size as needed
+    fpsText.setFillColor(sf::Color::White); // Choose a color that stands out
+    fpsText.setPosition(WINDOW_WIDTH - 210, WINDOW_HEIGHT - 50); // Position it at the top-right corner or wherever you prefer
 
     // Main event loop
     while (window.isOpen()) {
@@ -482,6 +497,23 @@ int main() {
         for (auto& wall : walls) {
             wall.draw(window);
         }
+
+        // Increment frame count
+frameCount++;
+
+// Check if half a second has passed to update the FPS display
+if (displayClock.getElapsedTime().asSeconds() >= 0.5f) {
+    // Calculate FPS
+    float fps = frameCount / fpsClock.restart().asSeconds();
+    fpsText.setString("FPS: " + std::to_string(static_cast<int>(fps)));
+
+    // Reset frame count and restart the display clock
+    frameCount = 0;
+    displayClock.restart();
+}
+
+// Draw the FPS text
+window.draw(fpsText);
 
         window.display(); // Display everything we have drawn
     }
