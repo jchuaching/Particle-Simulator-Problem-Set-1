@@ -11,7 +11,7 @@
 const unsigned int WINDOW_WIDTH = 1280;
 const unsigned int WINDOW_HEIGHT = 720;
 const unsigned int SIDEBAR_WIDTH = 320;
-const unsigned int INPUT_HEIGHT = 40;
+const unsigned int INPUT_HEIGHT = 30;
 const sf::Color INPUT_BG_COLOR(255, 255, 255);  // Light grey
 const sf::Color BUTTON_BG_COLOR(255, 192, 203); // Light pink
 const sf::Color pink5(230, 139, 190);
@@ -128,6 +128,66 @@ sf::Vector2f getWallNormal(const Wall& wall) {
     return normal;
 }
 
+class RadioButton {
+public:
+    sf::CircleShape outerCircle;
+    sf::CircleShape innerCircle;
+    bool isSelected;
+    sf::Text labelText; // Label text for the radio button
+    std::string label;
+
+    RadioButton(float x, float y, std::string labelText, sf::Font& font, unsigned int characterSize = 15) : isSelected(false), label(labelText) {
+        outerCircle.setRadius(8); // Smaller radius for the outer circle
+        outerCircle.setPosition(x, y);
+        outerCircle.setFillColor(sf::Color::White);
+
+        innerCircle.setRadius(4); // Smaller radius for the inner circle
+        // Adjust position to ensure innerCircle remains centered within outerCircle
+        innerCircle.setPosition(x + 4, y + 4); // Adjusted for the new radius
+        innerCircle.setFillColor(sf::Color::Black);
+
+        // Initially not selected, so inner circle is not visible
+        innerCircle.setFillColor(sf::Color::Transparent);
+
+        // Setting up the label
+        this->labelText.setFont(font);
+        this->labelText.setString(label);
+        this->labelText.setCharacterSize(characterSize);
+        this->labelText.setFillColor(sf::Color::Black);
+        
+        // Position the label right next to the radio button
+        this->labelText.setPosition(x + outerCircle.getRadius() * 2 + 5, y);
+    }
+
+    void draw(sf::RenderWindow& window) {
+        window.draw(outerCircle);
+        if (isSelected) {
+            innerCircle.setFillColor(sf::Color::Black);
+        }
+        else {
+            innerCircle.setFillColor(sf::Color::Transparent);
+        }
+        window.draw(innerCircle);
+        window.draw(labelText); // Draw the label text
+    }
+
+    void select() {
+        isSelected = true;
+    }
+    void deselect(){
+        isSelected = false;
+    }
+
+    void toggle() {
+        isSelected = !isSelected;
+    }
+
+    bool contains(sf::Vector2f point) {
+        return outerCircle.getGlobalBounds().contains(point);
+    }
+};
+
+
 class Ball {
 public:
     sf::CircleShape shape;
@@ -230,7 +290,6 @@ void update(const sf::RectangleShape& boundary, const std::vector<Wall>& walls, 
 
 };
 
-
 class InputBox {
 public:
     sf::RectangleShape box;
@@ -247,11 +306,11 @@ public:
         box.setPosition(position);
         box.setFillColor(pink3);
 
-        label = createInputLabel(labelText, font, 20, position.x + 5, position.y, size.y);
+        label = createInputLabel(labelText, font, 16, position.x + 5, position.y, size.y);
         text.setFont(font);
-        text.setCharacterSize(20);
+        text.setCharacterSize(15);
         text.setFillColor(sf::Color::Black);
-        text.setPosition(position.x + 5, position.y + (size.y - text.getCharacterSize()) / 2.0f);
+        text.setPosition(position.x, position.y + (size.y - text.getCharacterSize()) / 2.0f);
     }
 
     void draw(sf::RenderWindow& window) {
@@ -260,12 +319,12 @@ public:
         window.draw(text);
 
         // Adjust the position of the text to be to the right of the label
-        text.setPosition(box.getPosition().x + label.getLocalBounds().width + 15, text.getPosition().y);
+        text.setPosition(box.getPosition().x + label.getLocalBounds().width + 10, text.getPosition().y);
 
         if (isActive && cursorVisible) {
             sf::RectangleShape cursor(sf::Vector2f(2, text.getCharacterSize()));
             cursor.setFillColor(sf::Color::Black);
-            cursor.setPosition(text.getPosition().x + text.getLocalBounds().width + 5, text.getPosition().y);
+            cursor.setPosition(text.getPosition().x + text.getLocalBounds().width + 3, text.getPosition().y);
             window.draw(cursor);
         }
     }
@@ -316,6 +375,68 @@ public:
 // Add a global vector to store walls
 std::vector<Wall> walls;
 
+// Helper function to reset and update input boxes
+void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form) {
+    inputBoxes.clear(); // Clear existing input boxes
+    
+    if (form == 1) {
+        // Add new input boxes for "Form 1"
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "N:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Start X:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Start Y:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "End X:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 140), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "End Y:", font);
+
+        // Keep "Angle:" and "Velocity:" input boxes
+        float nextInputY = startY + 175;
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, nextInputY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, nextInputY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Velocity:", font);
+    }
+    else if (form == 2) {
+        // Add new input boxes for "Form 2"
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "N:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Start Angle:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 140), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "End Angle:", font);
+
+        // Keep "Angle:" and "Velocity:" input boxes
+        float nextInputY = startY + 175;
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, nextInputY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Velocity:", font);
+    }
+    else if (form == 3) {
+        // Add new input boxes for "Form 3"
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "N:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 140), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Start Velocity:", font);
+
+        // Keep "Angle:" and "Velocity:" input boxes
+        float nextInputY = startY + 175;
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, nextInputY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "End Velocity:", font);
+    }
+    else {
+        // Create input boxes for Balls
+        float ballInputsStartY = 110; // Adjust this value as needed to make space for radio buttons
+
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Velocity:", font);
+    }
+
+    // Create input boxes for Walls
+    float wallInputsStartY = 150 + 240 + 70; // Adjust based on the final position of the Balls input boxes
+
+    // Create input boxes for Walls
+    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X1:", font);
+    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y1:", font);
+    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X2:", font);
+    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y2:", font);
+
+}
+
 int main() {
 
 // FPS calculation and display
@@ -323,8 +444,6 @@ int main() {
     sf::Clock fpsClock;
     sf::Text fpsText;
     sf::Clock displayClock; // Clock to update the display every 0.5 seconds
-
-
 
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Particle Simulator");
@@ -336,39 +455,57 @@ int main() {
 
     sf::Font font;
 
-      if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
-    std::cout << "Failed to load font!" << std::endl;
-    return -1;
+    if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf"/*"/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf"*/)) {
+        std::cout << "Failed to load font!" << std::endl;
+        return -1;
     }
 
-
     // Initialize text labels for the sections
-    sf::Text ballsTitle = createLabel("Balls", font, 24, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
-    sf::Text wallsTitle = createLabel("Walls", font, 24, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 350);
+    sf::Text ballsTitle = createLabel("Balls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
+    sf::Text wallsTitle = createLabel("Walls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 360+70);
+    
+    // Initialize text label for the "Batch Form:" subtitle
+    sf::Text batchFormTitle = createLabel("Batch Form:", font, 18, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 45);
+
+    // Position radio buttons side by side in a single line
+    float startX = WINDOW_WIDTH - SIDEBAR_WIDTH + 10;
+    float radioButtonSpacing = 80; // Horizontal spacing between radio buttons
+    
+    std::vector<RadioButton> radioButtons;
+
+    // Assuming font and characterSize are already defined and appropriate
+    radioButtons.emplace_back(startX, 75, "Form 1", font, 14);
+    radioButtons.emplace_back(startX + radioButtonSpacing, 75, "Form 2", font, 14);
+    radioButtons.emplace_back(startX + 2 * radioButtonSpacing, 75, "Form 3", font, 14);
 
     // Define input boxes for the balls and walls
     std::vector<InputBox> inputBoxes;
 
     // Create input boxes for Balls
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 60), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X:", font);
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 110), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y:", font);
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 160), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 210), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Velocity:", font);
+    float ballInputsStartY = 110; // Adjust this value as needed to make space for radio buttons
+
+    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X:", font);
+    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y:", font);
+    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
+    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Velocity:", font);
 
     // Create input boxes for Walls
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 390), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X1:", font);
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 440), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y1:", font);
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 490), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X2:", font);
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 540), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y2:", font);
+    float wallInputsStartY = 150 + 240 + 70; // Adjust based on the final position of the Balls input boxes
 
+    // Create input boxes for Walls
+    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X1:", font);
+    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y1:", font);
+    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X2:", font);
+    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y2:", font);
+    
     // Define buttons and their labels
     std::vector<sf::RectangleShape> buttons;
     std::vector<sf::Text> buttonTexts;
 
     // Add Ball button with label
-    buttons.push_back(createTextButton(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 260, SIDEBAR_WIDTH - 20, INPUT_HEIGHT, "Add", font, buttonTexts));
+    buttons.push_back(createTextButton(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 360, SIDEBAR_WIDTH - 20, INPUT_HEIGHT, "Add", font, buttonTexts));
     // Add Wall button with label
-    buttons.push_back(createTextButton(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 590, SIDEBAR_WIDTH - 20, INPUT_HEIGHT, "Add", font, buttonTexts));
+    buttons.push_back(createTextButton(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 605, SIDEBAR_WIDTH - 20, INPUT_HEIGHT, "Add", font, buttonTexts));
 
     std::vector<Ball> balls;  // Vector to hold all the balls
 
@@ -394,6 +531,101 @@ int main() {
 
             // Check for mouse clicks to activate input boxes
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+                sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                // Example usage in your main loop when handling radio button selection
+                for (auto& radio : radioButtons) {
+                    if (radio.contains(mousePos)) {
+                        //if (!radioIsSelected) {
+                        //    radio.select(); // Select the clicked one
+                        //}
+                        //else {
+                        //    updateInputBoxes(inputBoxes, font, 110, -1);
+                        //}
+
+                        //if (radio.label == "Form 1") {
+                        //    // If "Form 1" is selected, update input boxes accordingly
+                        //    updateInputBoxes(inputBoxes, font, 110, 1); // Adjust startY as needed
+                        //}
+                        //else if (radio.label == "Form 2") {
+                        //    // If "Form 1" is selected, update input boxes accordingly
+                        //    updateInputBoxes(inputBoxes, font, 110, 2); // Adjust startY as needed
+                        //}
+                        //else if(radio.label == "Form 3") {
+                        //    // If "Form 1" is selected, update input boxes accordingly
+                        //    updateInputBoxes(inputBoxes, font, 110, 3); // Adjust startY as needed
+                        //}
+                        //else {
+                        //    updateInputBoxes(inputBoxes, font, 110, -1);
+                        //}
+                        // Inside the event loop, within MouseButtonPressed event handling
+                        bool wasSelected = radio.isSelected;
+
+                        for (auto& otherRadio : radioButtons) {
+                            otherRadio.deselect(); // Deselect all buttons
+                        }
+                        if (!wasSelected) {
+                            // If the clicked radio button was not already selected, select it
+                            radio.select();
+                        }
+                        // After updating the selection state, check which form should be active or if we should revert to default
+                        if (!radio.isSelected) {
+                            // If no radio button is selected (i.e., the clicked button was deselected),
+                            // revert input boxes to their original state.
+                            updateInputBoxes(inputBoxes, font, 110, -1);
+                        }
+                        else {
+                            // If a radio button is selected, update the input boxes based on the selected form
+                            if (radio.label == "Form 1") {
+                                updateInputBoxes(inputBoxes, font, 110, 1);
+                            }
+                            else if (radio.label == "Form 2") {
+                                updateInputBoxes(inputBoxes, font, 110, 2);
+                            }
+                            else if (radio.label == "Form 3") {
+                                updateInputBoxes(inputBoxes, font, 110, 3);
+                            }
+                        //}
+                        //for (auto& radio : radioButtons) {
+                        //    if (radio.contains(mousePos)) {
+                        //        radio.toggle(); // Toggle the selection state of the clicked radio button
+
+                        //        // Immediately break if we just deselected the radio button
+                        //        if (!radio.isSelected) {
+                        //            break;
+                        //        }
+                        //    }
+
+                        //    if (radio.isSelected) {
+                        //        anySelected = true;
+                        //    }
+                        //}
+
+                        //// After checking all radio buttons, update the input boxes based on the selection state
+                        //if (!anySelected) {
+                        //    // No radio button is selected, revert input boxes to their original state
+                        //    updateInputBoxes(inputBoxes, font, 110, -1);
+                        //}
+                        //else {
+                        //    // Update for a specific form, based on which radio button is selected
+                        //    for (auto& radio : radioButtons) {
+                        //        if (radio.isSelected) {
+                        //            if (radio.label == "Form 1") {
+                        //                updateInputBoxes(inputBoxes, font, 110, 1);
+                        //            }
+                        //            else if (radio.label == "Form 2") {
+                        //                updateInputBoxes(inputBoxes, font, 110, 2);
+                        //            }
+                        //            else if (radio.label == "Form 3") {
+                        //                updateInputBoxes(inputBoxes, font, 110, 3);
+                        //            }
+                        //            break; // Since only one radio button can be selected, we can break after finding it
+                        //        }
+                        //    }
+                        }
+                        break;
+                    }
+                }
+
                 // Check if the "Add" button for balls was clicked
                 if (buttons[0].getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                     // Then, modify the section where you add a new ball
@@ -473,6 +705,12 @@ int main() {
         // Draw the titles
         window.draw(ballsTitle);
         window.draw(wallsTitle);
+        window.draw(batchFormTitle);
+
+        // Before window.display(); to ensure they are drawn in this frame
+        for (auto& radio : radioButtons) {
+            radio.draw(window);
+        }
 
         // Draw input boxes
         for (auto& box : inputBoxes) {
