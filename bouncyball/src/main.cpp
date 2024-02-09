@@ -208,86 +208,84 @@ public:
         // Calculate velocity components based on speed and angle
         vx = speed * std::cos(angleInRadians);
         vy = -speed * std::sin(angleInRadians); // Invert vy because the coordinate system is inverted
-}
+       }
 
     void draw(sf::RenderWindow& window) {
         window.draw(shape);
     }
 
-bool lineIntersect(sf::Vector2f p1, sf::Vector2f p2, sf::Vector2f p3, sf::Vector2f p4, sf::Vector2f* intersection = nullptr) {
-    float s1_x = p2.x - p1.x;
-    float s1_y = p2.y - p1.y;
-    float s2_x = p4.x - p3.x;
-    float s2_y = p4.y - p3.y;
+    bool lineIntersect(sf::Vector2f p1, sf::Vector2f p2, sf::Vector2f p3, sf::Vector2f p4, sf::Vector2f* intersection = nullptr) {
+        float s1_x = p2.x - p1.x;
+        float s1_y = p2.y - p1.y;
+        float s2_x = p4.x - p3.x;
+        float s2_y = p4.y - p3.y;
 
-    float s, t;
-    s = (-s1_y * (p1.x - p3.x) + s1_x * (p1.y - p3.y)) / (-s2_x * s1_y + s1_x * s2_y);
-    t = ( s2_x * (p1.y - p3.y) - s2_y * (p1.x - p3.x)) / (-s2_x * s1_y + s1_x * s2_y);
+        float s, t;
+        s = (-s1_y * (p1.x - p3.x) + s1_x * (p1.y - p3.y)) / (-s2_x * s1_y + s1_x * s2_y);
+        t = ( s2_x * (p1.y - p3.y) - s2_y * (p1.x - p3.x)) / (-s2_x * s1_y + s1_x * s2_y);
 
-    if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-        if (intersection != nullptr) {
-            intersection->x = p1.x + (t * s1_x);
-            intersection->y = p1.y + (t * s1_y);
+        if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
+            if (intersection != nullptr) {
+                intersection->x = p1.x + (t * s1_x);
+                intersection->y = p1.y + (t * s1_y);
+            }
+            return true;
         }
-        return true;
+
+        return false; // No collision
     }
 
-    return false; // No collision
-}
+    // Function to update the ball position and check for boundary collisions
+    void update(const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime) {
+        //Calculate the trajectory line of the ball for this frame
+        sf::Vector2f startPosition = shape.getPosition();
+        sf::Vector2f endPosition = startPosition + sf::Vector2f(vx * deltaTime, vy * deltaTime);
 
-// Function to update the ball position and check for boundary collisions
-void update(const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime) {
-    // Calculate the trajectory line of the ball for this frame
-    sf::Vector2f startPosition = shape.getPosition();
-    sf::Vector2f endPosition = startPosition + sf::Vector2f(vx * deltaTime, vy * deltaTime);
+        // Check boundary collision with adjusted ball radius
+        float leftBound = boundary.getPosition().x + shape.getRadius();
+        float rightBound = boundary.getPosition().x + boundary.getSize().x - shape.getRadius() * 2;
+        float topBound = boundary.getPosition().y + shape.getRadius();
+        float bottomBound = boundary.getPosition().y + boundary.getSize().y - shape.getRadius() * 2;
 
-    // Check boundary collision with adjusted ball radius
-    float leftBound = boundary.getPosition().x + shape.getRadius();
-    float rightBound = boundary.getPosition().x + boundary.getSize().x - shape.getRadius() * 2;
-    float topBound = boundary.getPosition().y + shape.getRadius();
-    float bottomBound = boundary.getPosition().y + boundary.getSize().y - shape.getRadius() * 2;
+        if (endPosition.x < leftBound || endPosition.x > rightBound) {
+            vx = -vx; // Reverse horizontal velocity
+            endPosition.x = (endPosition.x < leftBound) ? leftBound : rightBound;
+        }
 
-    if (endPosition.x < leftBound || endPosition.x > rightBound) {
-        vx = -vx; // Reverse horizontal velocity
-        endPosition.x = (endPosition.x < leftBound) ? leftBound : rightBound;
-    }
+        if (endPosition.y < topBound || endPosition.y > bottomBound) {
+            vy = -vy; // Reverse vertical velocity
+            endPosition.y = (endPosition.y < topBound) ? topBound : bottomBound;
+        }
 
-    if (endPosition.y < topBound || endPosition.y > bottomBound) {
-        vy = -vy; // Reverse vertical velocity
-        endPosition.y = (endPosition.y < topBound) ? topBound : bottomBound;
-    }
+        // Now, handle wall collisions
+        bool collisionDetected = false;
+        sf::Vector2f collisionPoint;
+        sf::Vector2f wallNormal;
+        for (const auto& wall : walls) {
+            if (lineIntersect(startPosition, endPosition, wall.start, wall.end, &collisionPoint)) {
+                // Collision detected
+                collisionDetected = true;
+                wallNormal = getWallNormal(wall);
+                break;
+            }
+        }
 
-    // Now, handle wall collisions
-    bool collisionDetected = false;
-    sf::Vector2f collisionPoint;
-    sf::Vector2f wallNormal;
-    for (const auto& wall : walls) {
-        if (lineIntersect(startPosition, endPosition, wall.start, wall.end, &collisionPoint)) {
-            // Collision detected
-            collisionDetected = true;
-            wallNormal = getWallNormal(wall);
-            break;
+        if (collisionDetected) {
+            // Reflect the velocity vector off the wall's normal vector
+            sf::Vector2f incomingVelocity(vx, vy);
+            sf::Vector2f reflectedVelocity = reflect(incomingVelocity, wallNormal);
+            vx = reflectedVelocity.x;
+            vy = reflectedVelocity.y;
+
+            // Adjust the ball's position to the point of collision plus a little bit back,
+            // so it won't collide again in the next frame due to numerical errors
+            sf::Vector2f newPosition = collisionPoint - (incomingVelocity * deltaTime * 0.5f);
+            shape.setPosition(newPosition);
+        } else {
+            // If no collision was detected, simply move the ball to its new position
+            shape.setPosition(endPosition);
         }
     }
-
-    if (collisionDetected) {
-        // Reflect the velocity vector off the wall's normal vector
-        sf::Vector2f incomingVelocity(vx, vy);
-        sf::Vector2f reflectedVelocity = reflect(incomingVelocity, wallNormal);
-        vx = reflectedVelocity.x;
-        vy = reflectedVelocity.y;
-
-        // Adjust the ball's position to the point of collision plus a little bit back,
-        // so it won't collide again in the next frame due to numerical errors
-        sf::Vector2f newPosition = collisionPoint - (incomingVelocity * deltaTime * 0.5f);
-        shape.setPosition(newPosition);
-    } else {
-        // If no collision was detected, simply move the ball to its new position
-        shape.setPosition(endPosition);
-    }
-}
-
-
 };
 
 class InputBox {
@@ -418,12 +416,10 @@ void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float s
     }
     else {
         // Create input boxes for Balls
-        float ballInputsStartY = 110; // Adjust this value as needed to make space for radio buttons
-
-        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X:", font);
-        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y:", font);
-        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
-        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Velocity:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Velocity:", font);
     }
 
     // Create input boxes for Walls
@@ -483,21 +479,17 @@ int main() {
 
     // Create input boxes for Balls
     float ballInputsStartY = 110; // Adjust this value as needed to make space for radio buttons
-
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X:", font);
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y:", font);
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, ballInputsStartY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Velocity:", font);
+    updateInputBoxes(inputBoxes, font, ballInputsStartY, -1);
 
     // Create input boxes for Walls
-    float wallInputsStartY = 150 + 240 + 70; // Adjust based on the final position of the Balls input boxes
+    //float wallInputsStartY = 150 + 240 + 70; // Adjust based on the final position of the Balls input boxes
 
-    // Create input boxes for Walls
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X1:", font);
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y1:", font);
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X2:", font);
-    inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y2:", font);
-    
+    //// Create input boxes for Walls
+    //inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X1:", font);
+    //inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y1:", font);
+    //inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X2:", font);
+    //inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y2:", font);
+    //
     // Define buttons and their labels
     std::vector<sf::RectangleShape> buttons;
     std::vector<sf::Text> buttonTexts;
@@ -516,13 +508,16 @@ int main() {
     fpsText.setCharacterSize(20); // Adjust size as needed
     fpsText.setFillColor(sf::Color::White); // Choose a color that stands out
     fpsText.setPosition(WINDOW_WIDTH - 210, WINDOW_HEIGHT - 50); // Position it at the top-right corner or wherever you prefer
-
+    int activeForm = -1;
+    
     // Main event loop
     while (window.isOpen()) {
         sf::Event event;
 
         sf::Time elapsed = clock.restart(); // Restart the clock and get the elapsed time
         float deltaTime = elapsed.asSeconds(); // Convert elapsed time to seconds
+
+        
 
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
@@ -535,29 +530,6 @@ int main() {
                 // Example usage in your main loop when handling radio button selection
                 for (auto& radio : radioButtons) {
                     if (radio.contains(mousePos)) {
-                        //if (!radioIsSelected) {
-                        //    radio.select(); // Select the clicked one
-                        //}
-                        //else {
-                        //    updateInputBoxes(inputBoxes, font, 110, -1);
-                        //}
-
-                        //if (radio.label == "Form 1") {
-                        //    // If "Form 1" is selected, update input boxes accordingly
-                        //    updateInputBoxes(inputBoxes, font, 110, 1); // Adjust startY as needed
-                        //}
-                        //else if (radio.label == "Form 2") {
-                        //    // If "Form 1" is selected, update input boxes accordingly
-                        //    updateInputBoxes(inputBoxes, font, 110, 2); // Adjust startY as needed
-                        //}
-                        //else if(radio.label == "Form 3") {
-                        //    // If "Form 1" is selected, update input boxes accordingly
-                        //    updateInputBoxes(inputBoxes, font, 110, 3); // Adjust startY as needed
-                        //}
-                        //else {
-                        //    updateInputBoxes(inputBoxes, font, 110, -1);
-                        //}
-                        // Inside the event loop, within MouseButtonPressed event handling
                         bool wasSelected = radio.isSelected;
 
                         for (auto& otherRadio : radioButtons) {
@@ -572,77 +544,120 @@ int main() {
                             // If no radio button is selected (i.e., the clicked button was deselected),
                             // revert input boxes to their original state.
                             updateInputBoxes(inputBoxes, font, 110, -1);
+                            activeForm = -1;
                         }
                         else {
                             // If a radio button is selected, update the input boxes based on the selected form
                             if (radio.label == "Form 1") {
+                                activeForm = 1;
                                 updateInputBoxes(inputBoxes, font, 110, 1);
                             }
                             else if (radio.label == "Form 2") {
+                                activeForm = 2;
                                 updateInputBoxes(inputBoxes, font, 110, 2);
                             }
                             else if (radio.label == "Form 3") {
+                                activeForm = 3;
                                 updateInputBoxes(inputBoxes, font, 110, 3);
                             }
-                        //}
-                        //for (auto& radio : radioButtons) {
-                        //    if (radio.contains(mousePos)) {
-                        //        radio.toggle(); // Toggle the selection state of the clicked radio button
-
-                        //        // Immediately break if we just deselected the radio button
-                        //        if (!radio.isSelected) {
-                        //            break;
-                        //        }
-                        //    }
-
-                        //    if (radio.isSelected) {
-                        //        anySelected = true;
-                        //    }
-                        //}
-
-                        //// After checking all radio buttons, update the input boxes based on the selection state
-                        //if (!anySelected) {
-                        //    // No radio button is selected, revert input boxes to their original state
-                        //    updateInputBoxes(inputBoxes, font, 110, -1);
-                        //}
-                        //else {
-                        //    // Update for a specific form, based on which radio button is selected
-                        //    for (auto& radio : radioButtons) {
-                        //        if (radio.isSelected) {
-                        //            if (radio.label == "Form 1") {
-                        //                updateInputBoxes(inputBoxes, font, 110, 1);
-                        //            }
-                        //            else if (radio.label == "Form 2") {
-                        //                updateInputBoxes(inputBoxes, font, 110, 2);
-                        //            }
-                        //            else if (radio.label == "Form 3") {
-                        //                updateInputBoxes(inputBoxes, font, 110, 3);
-                        //            }
-                        //            break; // Since only one radio button can be selected, we can break after finding it
-                        //        }
-                        //    }
                         }
                         break;
                     }
+                }
+                int n_input;
+
+                if (activeForm == 1) {
+                    n_input = 7;
+                }
+                else if (activeForm == 2 || activeForm == 3) {
+                    n_input = 6;
+                }
+                else {
+                    n_input = 4;
                 }
 
                 // Check if the "Add" button for balls was clicked
                 if (buttons[0].getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                     // Then, modify the section where you add a new ball
                     // Assuming inputs are valid numbers for simplicity; add validation as needed
-                    float x = std::stof(inputBoxes[0].inputString);
-                    float y = std::stof(inputBoxes[1].inputString);
-                    float angle = std::stof(inputBoxes[2].inputString); // Angle in degrees
-                    float speed = std::stof(inputBoxes[3].inputString); // Speed
-                    float radius = 4.0f; // Example radius, you would get this from input or define it
+                    int N;
+                    float x, y, angle, speed;
+                    float startX, startY, endX, endY;
+                    float startAngle, endAngle;
+                    float startVelocity, endVelocity;
+                    float radius = 6.0f; // Example radius, you would get this from input or define it
                     sf::Color color = sf::Color{ pink2 }; // Example color, you could make this selectable
 
+                    switch (activeForm) {
+                    case 1:
+                        N = std::stoi(inputBoxes[0].inputString); // Number of balls
+                        startX = std::stof(inputBoxes[1].inputString);
+                        startY = std::stof(inputBoxes[2].inputString);
+                        endX = std::stof(inputBoxes[3].inputString);
+                        endY = std::stof(inputBoxes[4].inputString);
+                        angle = std::stof(inputBoxes[5].inputString);
+                        speed = std::stof(inputBoxes[6].inputString);
 
-                    // Create a new ball and add it to the vector
-                    balls.emplace_back(x, y, radius, color, speed, angle);
+                        for (int i = 0; i < N; ++i) {
+                            float t = (float)i / (N - 1); // Calculate interpolation parameter
+                            x = startX + t * (endX - startX); // Interpolate X
+                            y = startY + t * (endY - startY); // Interpolate Y
+                            std::cout << x << " " << y;
+                            balls.emplace_back(x, y, radius, color, speed, angle);
+                        }
+                        break;
+                    case 2:
+                        // Handling for Form 2
+                        N = std::stoi(inputBoxes[0].inputString); // Number of balls
+                        x = std::stof(inputBoxes[1].inputString); // X position
+                        y = std::stof(inputBoxes[2].inputString); // Y position
+                        startAngle = std::stof(inputBoxes[3].inputString);
+                        endAngle = std::stof(inputBoxes[4].inputString);
+                        speed = std::stof(inputBoxes[5].inputString);
+
+                        for (int i = 0; i < N; ++i) {
+                            float t = (float)i / (N - 1); // Calculate interpolation parameter
+                            angle = startAngle + t * (endAngle - startAngle); // Interpolate Angle
+                            std::cout << angle;
+                            balls.emplace_back(x, y, radius, color, speed, angle);
+                        }
+                        break;
+                    case 3:
+                        // Handling for Form 3
+                        N = std::stoi(inputBoxes[0].inputString); // Number of balls
+                        x = std::stof(inputBoxes[1].inputString); // X position
+                        y = std::stof(inputBoxes[2].inputString); // Y position
+                        angle = std::stof(inputBoxes[3].inputString);
+                        startVelocity = std::stof(inputBoxes[4].inputString);
+                        endVelocity = std::stof(inputBoxes[5].inputString);
+
+                        for (int i = 0; i < N; ++i) {
+                            float t = (float)i / (N - 1); // Calculate interpolation parameter
+                            speed = startVelocity + t * (endVelocity - startVelocity); // Interpolate Velocity
+                            std::cout << speed;
+                            balls.emplace_back(x, y, radius, color, speed, angle);
+                        }
+                        break;
+                    default:
+                        x = std::stof(inputBoxes[0].inputString);
+                        y = std::stof(inputBoxes[1].inputString);
+                        angle = std::stof(inputBoxes[2].inputString); // Angle in degrees
+                        speed = std::stof(inputBoxes[3].inputString); // Speed
+                        // No form is selected or handling for default case
+                        balls.emplace_back(x, y, radius, color, speed, angle);
+                        break;
+                    }
+                    
+                    //float radius = 4.0f; // Example radius, you would get this from input or define it
+                    //sf::Color color = sf::Color{ pink2 }; // Example color, you could make this selectable
+
+
+                    //// Create a new ball and add it to the vector
+                    //balls.emplace_back(x, y, radius, color, speed, angle);
 
                     // Clear the input fields
-                    for (int i = 0; i < 4; ++i) {
+
+                    for (int i = 0; i < n_input; ++i) {
                         inputBoxes[i].inputString.clear();
                         inputBoxes[i].text.setString("");
                     }
@@ -651,10 +666,10 @@ int main() {
                 // Check if the "Add" button for walls was clicked
                 if (buttons[1].getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                     // Get wall input values
-                    float x1 = std::stof(inputBoxes[4].inputString);
-                    float y1 = std::stof(inputBoxes[5].inputString);
-                    float x2 = std::stof(inputBoxes[6].inputString);
-                    float y2 = std::stof(inputBoxes[7].inputString);
+                    float x1 = std::stof(inputBoxes[n_input].inputString);
+                    float y1 = std::stof(inputBoxes[n_input+1].inputString);
+                    float x2 = std::stof(inputBoxes[n_input+2].inputString);
+                    float y2 = std::stof(inputBoxes[n_input+3].inputString);
 
                     // Check if the input values are within the display area
                     if (displayArea.getGlobalBounds().contains(x1, y1) && displayArea.getGlobalBounds().contains(x2, y2)) {
@@ -662,7 +677,7 @@ int main() {
                         walls.emplace_back(sf::Vector2f(x1, WINDOW_HEIGHT - y1), sf::Vector2f(x2, WINDOW_HEIGHT - y2));
                     
                         // Clear the input fields
-                        for (int i = 4; i < 8; ++i) {
+                        for (int i = n_input; i < n_input+4; ++i) {
                             inputBoxes[i].inputString.clear();
                             inputBoxes[i].text.setString("");
                         }
@@ -694,8 +709,8 @@ int main() {
 
          // Update each ball with deltaTime
         for (auto& ball : balls) {
-        ball.update(displayArea, walls, deltaTime); // Pass deltaTime to update method
-    }
+            ball.update(displayArea, walls, deltaTime); // Pass deltaTime to update method
+        }
 
         window.clear(pink5); // Clear the window
 
@@ -737,21 +752,21 @@ int main() {
         }
 
         // Increment frame count
-frameCount++;
+        frameCount++;
 
-// Check if half a second has passed to update the FPS display
-if (displayClock.getElapsedTime().asSeconds() >= 0.5f) {
-    // Calculate FPS
-    float fps = frameCount / fpsClock.restart().asSeconds();
-    fpsText.setString("FPS: " + std::to_string(static_cast<int>(fps)));
+        // Check if half a second has passed to update the FPS display
+        if (displayClock.getElapsedTime().asSeconds() >= 0.5f) {
+            // Calculate FPS
+            float fps = frameCount / fpsClock.restart().asSeconds();
+            fpsText.setString("FPS: " + std::to_string(static_cast<int>(fps)));
 
-    // Reset frame count and restart the display clock
-    frameCount = 0;
-    displayClock.restart();
-}
+            // Reset frame count and restart the display clock
+            frameCount = 0;
+            displayClock.restart();
+        }
 
-// Draw the FPS text
-window.draw(fpsText);
+        // Draw the FPS text
+        window.draw(fpsText);
 
         window.display(); // Display everything we have drawn
     }
