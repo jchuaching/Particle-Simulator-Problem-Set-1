@@ -16,14 +16,11 @@ const unsigned int WINDOW_WIDTH = 1280;
 const unsigned int WINDOW_HEIGHT = 720;
 const unsigned int SIDEBAR_WIDTH = 320;
 const unsigned int INPUT_HEIGHT = 30;
-const sf::Color INPUT_BG_COLOR(255, 255, 255);  // Light grey
-const sf::Color BUTTON_BG_COLOR(255, 192, 203); // Light pink
-const sf::Color pink5(230, 139, 190);
-const sf::Color pink4(238, 161, 205);
-const sf::Color pink3(244, 184, 218);
-const sf::Color pink2(249, 206, 231);
-const sf::Color pink1(253, 228, 242);
 
+const sf::Color columbiaBlue(210, 224, 237);
+const sf::Color peachFuzz(255, 215, 194);
+const sf::Color flashWhite(246, 246, 248);
+const sf::Color slateBlue(110, 110, 110);
 
 
 // Function to create an input box
@@ -31,7 +28,7 @@ sf::RectangleShape createInputBox(float x, float y, float width, float height) {
     sf::RectangleShape box;
     box.setSize(sf::Vector2f(width, height));
     box.setPosition(x, y);
-    box.setFillColor(pink3);
+    box.setFillColor(flashWhite);
     return box;
 }
 
@@ -40,7 +37,7 @@ sf::Text createLabel(const std::string& content, sf::Font& font, unsigned int si
     label.setFont(font);
     label.setString(content);
     label.setCharacterSize(size);
-    label.setFillColor(sf::Color::Black);
+    label.setFillColor(slateBlue);
     label.setPosition(x, y);
     return label;
 }
@@ -50,7 +47,7 @@ sf::Text createInputLabel(const std::string& content, sf::Font& font, unsigned i
     label.setFont(font);
     label.setString(content);
     label.setCharacterSize(size);
-    label.setFillColor(sf::Color::Black);
+    label.setFillColor(slateBlue);
 
     // Calculate the vertical center
     sf::FloatRect textRect = label.getLocalBounds();
@@ -65,7 +62,7 @@ sf::RectangleShape createButton(float x, float y, float width, float height) {
     sf::RectangleShape button;
     button.setSize(sf::Vector2f(width, height));
     button.setPosition(x, y);
-    button.setFillColor(pink4);
+    button.setFillColor(flashWhite);
     return button;
 }
 
@@ -77,7 +74,7 @@ sf::RectangleShape createTextButton(float x, float y, float width, float height,
     buttonText.setFont(font);
     buttonText.setString(textContent);
     buttonText.setCharacterSize(20);  // Set to your desired size
-    buttonText.setFillColor(sf::Color::Black);
+    buttonText.setFillColor(slateBlue);
     sf::FloatRect textRect = buttonText.getLocalBounds();
     buttonText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
     buttonText.setPosition(x + width / 2.0f, y + height / 2.0f);
@@ -114,14 +111,14 @@ public:
         // Calculate the angle to rotate the wall
         float angle = std::atan2(direction.y, direction.x) * 180 / M_PI;
         shape.setRotation(angle);
-        shape.setFillColor(sf::Color::Black); // Set wall color
+        shape.setFillColor(slateBlue); // Set wall color
     }
 
     void draw(sf::RenderWindow& window) const {
         window.draw(shape);
     }
 
-    
+
 };
 
 sf::Vector2f getWallNormal(const Wall& wall) {
@@ -146,12 +143,12 @@ public:
     RadioButton(float x, float y, std::string labelText, sf::Font& font, unsigned int characterSize = 15) : isSelected(false), label(labelText) {
         outerCircle.setRadius(8); // Smaller radius for the outer circle
         outerCircle.setPosition(x, y);
-        outerCircle.setFillColor(sf::Color::White);
+        outerCircle.setFillColor(flashWhite);
 
         innerCircle.setRadius(4); // Smaller radius for the inner circle
         // Adjust position to ensure innerCircle remains centered within outerCircle
         innerCircle.setPosition(x + 4, y + 4); // Adjusted for the new radius
-        innerCircle.setFillColor(sf::Color::Black);
+        innerCircle.setFillColor(slateBlue);
 
         // Initially not selected, so inner circle is not visible
         innerCircle.setFillColor(sf::Color::Transparent);
@@ -160,8 +157,8 @@ public:
         this->labelText.setFont(font);
         this->labelText.setString(label);
         this->labelText.setCharacterSize(characterSize);
-        this->labelText.setFillColor(sf::Color::Black);
-        
+        this->labelText.setFillColor(slateBlue);
+
         // Position the label right next to the radio button
         this->labelText.setPosition(x + outerCircle.getRadius() * 2 + 5, y);
     }
@@ -169,7 +166,7 @@ public:
     void draw(sf::RenderWindow& window) {
         window.draw(outerCircle);
         if (isSelected) {
-            innerCircle.setFillColor(sf::Color::Black);
+            innerCircle.setFillColor(slateBlue);
         }
         else {
             innerCircle.setFillColor(sf::Color::Transparent);
@@ -181,7 +178,7 @@ public:
     void select() {
         isSelected = true;
     }
-    void deselect(){
+    void deselect() {
         isSelected = false;
     }
 
@@ -200,9 +197,9 @@ public:
     sf::CircleShape shape;
     float vx, vy; // Velocity components
 
-    
+
     Ball(float x, float y, float radius, sf::Color color, float speed, float angleInDegrees)
-    : shape(radius) {
+        : shape(radius) {
         // Invert the y coordinate to match the requested coordinate system
         float invertedY = WINDOW_HEIGHT - y; // Subtract y from WINDOW_HEIGHT to invert
 
@@ -215,7 +212,7 @@ public:
         // Calculate velocity components based on speed and angle
         vx = speed * std::cos(angleInRadians);
         vy = -speed * std::sin(angleInRadians); // Invert vy because the coordinate system is inverted
-       }
+    }
 
     void draw(sf::RenderWindow& window) const {
         window.draw(shape);
@@ -229,7 +226,7 @@ public:
 
         float s, t;
         s = (-s1_y * (p1.x - p3.x) + s1_x * (p1.y - p3.y)) / (-s2_x * s1_y + s1_x * s2_y);
-        t = ( s2_x * (p1.y - p3.y) - s2_y * (p1.x - p3.x)) / (-s2_x * s1_y + s1_x * s2_y);
+        t = (s2_x * (p1.y - p3.y) - s2_y * (p1.x - p3.x)) / (-s2_x * s1_y + s1_x * s2_y);
 
         if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
             if (intersection != nullptr) {
@@ -288,7 +285,8 @@ public:
             // so it won't collide again in the next frame due to numerical errors
             sf::Vector2f newPosition = collisionPoint - (incomingVelocity * deltaTime * 0.5f);
             shape.setPosition(newPosition);
-        } else {
+        }
+        else {
             // If no collision was detected, simply move the ball to its new position
             shape.setPosition(endPosition);
         }
@@ -309,12 +307,12 @@ public:
         : isActive(false), cursorVisible(false) {
         box.setSize(size);
         box.setPosition(position);
-        box.setFillColor(pink3);
+        box.setFillColor(flashWhite);
 
         label = createInputLabel(labelText, font, 16, position.x + 5, position.y, size.y);
         text.setFont(font);
         text.setCharacterSize(15);
-        text.setFillColor(sf::Color::Black);
+        text.setFillColor(slateBlue);
         text.setPosition(position.x, position.y + (size.y - text.getCharacterSize()) / 2.0f);
     }
 
@@ -328,7 +326,7 @@ public:
 
         if (isActive && cursorVisible) {
             sf::RectangleShape cursor(sf::Vector2f(2, text.getCharacterSize()));
-            cursor.setFillColor(sf::Color::Black);
+            cursor.setFillColor(slateBlue);
             cursor.setPosition(text.getPosition().x + text.getLocalBounds().width + 3, text.getPosition().y);
             window.draw(cursor);
         }
@@ -383,7 +381,7 @@ std::vector<Wall> walls;
 // Helper function to reset and update input boxes
 void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form) {
     inputBoxes.clear(); // Clear existing input boxes
-    
+
     if (form == 1) {
         // Add new input boxes for "Form 1"
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "N:", font);
@@ -461,7 +459,7 @@ void renderWalls(sf::RenderWindow& window, const std::vector<Wall>& walls) {
 
 int main() {
 
-// FPS calculation and display
+    // FPS calculation and display
     unsigned int frameCount = 0;
     sf::Clock fpsClock;
     sf::Text fpsText;
@@ -475,27 +473,28 @@ int main() {
 
     // Define the display area for the simulation
     sf::RectangleShape displayArea(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH, WINDOW_HEIGHT));
-    displayArea.setFillColor(pink4); // Assuming pink background for the simulation area
+    displayArea.setFillColor(peachFuzz); // background for the simulation area
     displayArea.setPosition(0, 0);
 
     sf::Font font;
 
-    if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
+    if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Medium.ttf")) {
+        //if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
         std::cout << "Failed to load font!" << std::endl;
         return -1;
     }
 
     // Initialize text labels for the sections
     sf::Text ballsTitle = createLabel("Balls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
-    sf::Text wallsTitle = createLabel("Walls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 360+70);
-    
+    sf::Text wallsTitle = createLabel("Walls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 360 + 70);
+
     // Initialize text label for the "Batch Form:" subtitle
     sf::Text batchFormTitle = createLabel("Batch Form:", font, 18, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 45);
 
     // Position radio buttons side by side in a single line
     float startX = WINDOW_WIDTH - SIDEBAR_WIDTH + 10;
     float radioButtonSpacing = 80; // Horizontal spacing between radio buttons
-    
+
     std::vector<RadioButton> radioButtons;
 
     // Assuming font and characterSize are already defined and appropriate
@@ -530,15 +529,15 @@ int main() {
 
     std::vector<Ball> balls;  // Vector to hold all the balls
 
-    sf::Clock clock; 
+    sf::Clock clock;
 
     // Initialize FPS text
     fpsText.setFont(font);
     fpsText.setCharacterSize(20); // Adjust size as needed
-    fpsText.setFillColor(sf::Color::White); // Choose a color that stands out
+    fpsText.setFillColor(slateBlue); // Choose a color that stands out
     fpsText.setPosition(WINDOW_WIDTH - 210, WINDOW_HEIGHT - 50); // Position it at the top-right corner or wherever you prefer
     int activeForm = -1;
-    
+
     // Main event loop
     while (window.isOpen()) {
         sf::Event event;
@@ -546,7 +545,7 @@ int main() {
         sf::Time elapsed = clock.restart(); // Restart the clock and get the elapsed time
         float deltaTime = elapsed.asSeconds(); // Convert elapsed time to seconds
 
-        
+
 
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
@@ -615,7 +614,7 @@ int main() {
                     float startAngle, endAngle;
                     float startVelocity, endVelocity;
                     float radius = 6.0f; // Example radius, you would get this from input or define it
-                    sf::Color color = sf::Color{ pink2 }; // Example color, you could make this selectable
+                    sf::Color color = sf::Color{ slateBlue }; // Example color, you could make this selectable
 
                     switch (activeForm) {
                     case 1:
@@ -676,7 +675,7 @@ int main() {
                         balls.emplace_back(x, y, radius, color, speed, angle);
                         break;
                     }
-                    
+
                     //float radius = 4.0f; // Example radius, you would get this from input or define it
                     //sf::Color color = sf::Color{ pink2 }; // Example color, you could make this selectable
 
@@ -696,17 +695,17 @@ int main() {
                 if (buttons[1].getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                     // Get wall input values
                     float x1 = std::stof(inputBoxes[n_input].inputString);
-                    float y1 = std::stof(inputBoxes[n_input+1].inputString);
-                    float x2 = std::stof(inputBoxes[n_input+2].inputString);
-                    float y2 = std::stof(inputBoxes[n_input+3].inputString);
+                    float y1 = std::stof(inputBoxes[n_input + 1].inputString);
+                    float x2 = std::stof(inputBoxes[n_input + 2].inputString);
+                    float y2 = std::stof(inputBoxes[n_input + 3].inputString);
 
                     // Check if the input values are within the display area
                     if (displayArea.getGlobalBounds().contains(x1, y1) && displayArea.getGlobalBounds().contains(x2, y2)) {
                         // Create a new wall and add it to the vector
                         walls.emplace_back(sf::Vector2f(x1, WINDOW_HEIGHT - y1), sf::Vector2f(x2, WINDOW_HEIGHT - y2));
-                    
+
                         // Clear the input fields
-                        for (int i = n_input; i < n_input+4; ++i) {
+                        for (int i = n_input; i < n_input + 4; ++i) {
                             inputBoxes[i].inputString.clear();
                             inputBoxes[i].text.setString("");
                         }
@@ -725,7 +724,7 @@ int main() {
                         box.setActive(false);
                     }
                 }
-            
+
             }
 
             // Handle text input for the active input box
@@ -736,12 +735,12 @@ int main() {
             }
         }
 
-         // Update each ball with deltaTime
+        // Update each ball with deltaTime
         for (auto& ball : balls) {
             ball.update(displayArea, walls, deltaTime); // Pass deltaTime to update method
         }
 
-        window.clear(pink5); // Clear the window
+        window.clear(columbiaBlue); // Clear the window
 
         // Draw the display area
         window.draw(displayArea);
@@ -761,7 +760,7 @@ int main() {
             box.update();  // Update each box (for blinking cursor)
             box.draw(window);  // Draw each box
         }
-        
+
         // Draw buttons and their labels
         for (auto& button : buttons) {
             window.draw(button);

@@ -1,11 +1,11 @@
 ﻿  main.cpp
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(110,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(206,30): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(323,76): warning C4244: 'argument': conversion from 'unsigned int' to 'T', possible loss of data
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(323,76): warning C4244:         with
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(323,76): warning C4244:         [
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(323,76): warning C4244:             T=float
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(323,76): warning C4244:         ]
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(112,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(210,30): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(328,76): warning C4244: 'argument': conversion from 'unsigned int' to 'T', possible loss of data
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(328,76): warning C4244:         with
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(328,76): warning C4244:         [
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(328,76): warning C4244:             T=float
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(328,76): warning C4244:         ]
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244: 'argument': conversion from '_Ty' to 'float', possible loss of data
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244:         with
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244:         [
@@ -14,7 +14,7 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.3313
   (compiling source file 'src/main.cpp')
   C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76):
   the template instantiation context (the oldest one first) is
-  	C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(473,17):
+  	C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(501,17):
   	see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::emplace_back<float&,int,const char(&)[7],sf::Font&,int>(float &,int &&,const char (&)[7],sf::Font &,int &&)' being compiled
           with
           [
