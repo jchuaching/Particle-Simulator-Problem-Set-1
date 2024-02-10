@@ -3,6 +3,10 @@
 #include <vector>
 #include <cmath>
 #include <algorithm> 
+#include <thread>
+#include <mutex>
+#include <vector>
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -19,6 +23,7 @@ const sf::Color pink4(238, 161, 205);
 const sf::Color pink3(244, 184, 218);
 const sf::Color pink2(249, 206, 231);
 const sf::Color pink1(253, 228, 242);
+
 
 
 // Function to create an input box
@@ -112,9 +117,11 @@ public:
         shape.setFillColor(sf::Color::Black); // Set wall color
     }
 
-    void draw(sf::RenderWindow& window) {
+    void draw(sf::RenderWindow& window) const {
         window.draw(shape);
     }
+
+    
 };
 
 sf::Vector2f getWallNormal(const Wall& wall) {
@@ -210,7 +217,7 @@ public:
         vy = -speed * std::sin(angleInRadians); // Invert vy because the coordinate system is inverted
        }
 
-    void draw(sf::RenderWindow& window) {
+    void draw(sf::RenderWindow& window) const {
         window.draw(shape);
     }
 
@@ -433,6 +440,25 @@ void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float s
 
 }
 
+// Global mutex for rendering synchronization
+std::mutex renderMutex;
+
+// Thread function for rendering balls
+void renderBalls(sf::RenderWindow& window, const std::vector<Ball>& balls) {
+    std::lock_guard<std::mutex> lock(renderMutex);
+    for (const auto& ball : balls) {
+        ball.draw(window);
+    }
+}
+
+// Thread function for rendering walls
+void renderWalls(sf::RenderWindow& window, const std::vector<Wall>& walls) {
+    std::lock_guard<std::mutex> lock(renderMutex);
+    for (const auto& wall : walls) {
+        wall.draw(window);
+    }
+}
+
 int main() {
 
 // FPS calculation and display
@@ -451,7 +477,7 @@ int main() {
 
     sf::Font font;
 
-    if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf"/*"/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf"*/)) {
+    if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
         std::cout << "Failed to load font!" << std::endl;
         return -1;
     }
@@ -767,6 +793,14 @@ int main() {
 
         // Draw the FPS text
         window.draw(fpsText);
+
+        // Inside your main loop, before window.display();
+        std::thread ballsThread(renderBalls, std::ref(window), std::ref(balls));
+        std::thread wallsThread(renderWalls, std::ref(window), std::ref(walls));
+
+        // Make sure to join the threads
+        ballsThread.join();
+        wallsThread.join();
 
         window.display(); // Display everything we have drawn
     }
