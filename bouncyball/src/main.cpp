@@ -470,6 +470,9 @@ int main() {
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Particle Simulator");
 
+    // Set the frame rate limit to 60 frames per second
+    window.setFramerateLimit(60);
+
     // Define the display area for the simulation
     sf::RectangleShape displayArea(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH, WINDOW_HEIGHT));
     displayArea.setFillColor(pink4); // Assuming pink background for the simulation area
