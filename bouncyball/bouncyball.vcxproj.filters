@@ -23,6 +23,9 @@
     <Font Include="res\Inter-Regular.ttf">
       <Filter>Resource Files</Filter>
     </Font>
+    <Font Include="res\Inter-Medium.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\SFML\Graphics.hpp">

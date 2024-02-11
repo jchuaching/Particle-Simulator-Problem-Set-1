@@ -138,6 +138,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Font Include="res\Inter-Medium.ttf" />
     <Font Include="res\Inter-Regular.ttf" />
   </ItemGroup>
   <ItemGroup>

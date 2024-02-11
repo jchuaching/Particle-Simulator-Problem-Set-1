@@ -4,6 +4,7 @@
 #include <cmath>
 #include <thread>
 #include <mutex>
+#include <future>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -300,17 +301,18 @@ public:
 
 // Variables
 std::vector<Wall> walls; // global vector to store walls
-std::mutex renderMutex; // Global mutex for rendering synchronization
+std::vector<Ball> balls;
+//std::mutex renderMutex; // Global mutex for rendering synchronization
+std::mutex vectorMutex; // Mutex to protect shared vectors
+int updateInterval = 5; // Update every 5 frames
+int currentFrame = 0;
 
 // Functions
 void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form);
 void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime);
-void renderBalls(sf::RenderWindow& window, const std::vector<Ball>& balls);
-void renderWalls(sf::RenderWindow& window, const std::vector<Wall>& walls); 
-void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form);
-void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime);
-void renderBalls(sf::RenderWindow& window, const std::vector<Ball>& balls);
-void renderWalls(sf::RenderWindow& window, const std::vector<Wall>& walls); 
+void addBallSafely(const Ball& ball); 
+void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls);
+void drawBalls(sf::RenderWindow& window);
 
 // Main Function
 int main() {
@@ -327,9 +329,15 @@ int main() {
     std::vector<sf::RectangleShape> buttons;   // Define buttons and their labels
     std::vector<sf::Text> buttonTexts;
 
-    std::vector<Ball> balls;  // Vector to hold all the balls
+    //std::vector<Ball> balls;  // Vector to hold all the balls
 
     // Create the main window
+    sf::ContextSettings settings;
+    settings.depthBits = 24;
+    settings.stencilBits = 8;
+    settings.antialiasingLevel = 4;
+    settings.majorVersion = 3;
+    settings.minorVersion = 0;
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Particle Simulator");
 
     // Set the frame rate limit to 60 frames per second
@@ -339,8 +347,9 @@ int main() {
     sf::RectangleShape displayArea(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH, WINDOW_HEIGHT));
     displayArea.setFillColor(peachFuzz);  // background for the simulation area
     displayArea.setPosition(0, 0);
-
-    if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
+    
+    if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf")) {
+    //if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
         std::cout << "Failed to load font!" << std::endl;
         return -1;
     }
@@ -375,6 +384,8 @@ int main() {
     fpsText.setFillColor(slateBlue);
     fpsText.setPosition(WINDOW_WIDTH - 210, WINDOW_HEIGHT - 50); // Position it at the top-right corner
     int activeForm = -1;
+    float deltaTime = clock.restart().asSeconds();
+
     
     // Main event loop
     while (window.isOpen()) {
@@ -382,9 +393,6 @@ int main() {
 
         sf::Time elapsed = clock.restart(); // Restart the clock and get the elapsed time
         float deltaTime = elapsed.asSeconds(); // Convert elapsed time to seconds
-
-        // Update balls in parallel
-        updateBallsInParallel(balls, displayArea, walls, deltaTime);
 
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
@@ -467,6 +475,8 @@ int main() {
                             x = startX + t * (endX - startX); // Interpolate X
                             y = startY + t * (endY - startY); // Interpolate Y
                             // std::cout << x << " " << y;
+                            /*Ball newBall(x, y, radius, color, speed, angle);
+                            addBallSafely(newBall);*/
                             balls.emplace_back(x, y, radius, color, speed, angle);
                         }
                         break;
@@ -505,7 +515,7 @@ int main() {
                         y = std::stof(inputBoxes[1].inputString);
                         angle = std::stof(inputBoxes[2].inputString); // Angle in degrees
                         speed = std::stof(inputBoxes[3].inputString); // Speed
-                        balls.emplace_back(x, y, radius, color, speed, angle); // No form is selected or handling for default case
+                        balls.emplace_back(x, y, radius, color, speed, angle);
                         break;
                     }
 
@@ -590,10 +600,12 @@ int main() {
             window.draw(buttonText);
         }
 
+        updateBalls(static_cast<float>(deltaTime), displayArea, walls); // Now passing the display area and walls as arguments
+        drawBalls(window);
         // Draw balls and walls inside the display area
-        for (auto& ball : balls) {
+        /*for (auto& ball : balls) {
             ball.draw(window);
-        }
+        }*/
         for (auto& wall : walls) {
             wall.draw(window);
         }
@@ -601,7 +613,7 @@ int main() {
         frameCount++; // Increment frame count
 
         // Check if half a second has passed to update the FPS display
-        if (displayClock.getElapsedTime().asSeconds() >= 0.5f) {
+        if (displayClock.getElapsedTime().asSeconds() >= 1.f) {
             float fps = frameCount / fpsClock.restart().asSeconds();             // Calculate FPS
             fpsText.setString("FPS: " + std::to_string(static_cast<int>(fps)));
 
@@ -612,13 +624,6 @@ int main() {
         // Draw the FPS text
         window.draw(fpsText);
 
-        std::thread ballsThread(renderBalls, std::ref(window), std::ref(balls));
-        std::thread wallsThread(renderWalls, std::ref(window), std::ref(walls));
-
-        // Join the threads
-        ballsThread.join();
-        wallsThread.join();
-
         window.display(); // Display everything we have drawn
     }
 
@@ -626,6 +631,22 @@ int main() {
 }
 
 // FUNCTIONS --------------------------------------------------------------
+
+
+void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls) {
+    // Only update a subset of balls to maintain high FPS
+    for (int i = currentFrame % updateInterval; i < balls.size(); i += updateInterval) {
+        balls[i].update(displayArea, walls, deltaTime); // Update the ball's position and check for collisions
+    }
+    currentFrame++;
+}
+
+void drawBalls(sf::RenderWindow& window) {
+    // Draw all balls every frame without updating their state
+    for (const auto& ball : balls) {
+        ball.draw(window); // Draw the ball on the window
+    }
+}
 
 // Generates a text label at a specified position with a given font, size, and content, setting its color to slateBlue.
 sf::Text createLabel(const std::string& content, sf::Font& font, unsigned int size, float x, float y) {
@@ -762,41 +783,36 @@ void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float s
 // Updates the positions of all Ball objects in parallel using multiple threads to handle large numbers of balls efficiently.
 void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime) {
     const size_t numThreads = std::thread::hardware_concurrency();
-    const size_t chunkSize = balls.size() / numThreads;
-    std::vector<std::thread> threads;
+    const size_t totalBalls = balls.size();
+    const size_t chunkSize = totalBalls / numThreads;
+    size_t remainingBalls = totalBalls % numThreads;
 
+    std::vector<std::future<void>> futures(numThreads);
+
+    size_t startIdx = 0;
     for (size_t i = 0; i < numThreads; ++i) {
-        size_t startIdx = i * chunkSize;
-        size_t endIdx = (i == numThreads - 1) ? balls.size() : (i + 1) * chunkSize;
+        size_t ballsToProcess = chunkSize + (remainingBalls > 0 ? 1 : 0);
+        if (remainingBalls > 0) {
+            --remainingBalls;
+        }
 
-        threads.emplace_back([startIdx, endIdx, &balls, &boundary, &walls, deltaTime]() {
+        size_t endIdx = startIdx + ballsToProcess;
+        futures[i] = std::async(std::launch::async, [startIdx, endIdx, &balls, &boundary, &walls, deltaTime]() {
             for (size_t j = startIdx; j < endIdx; ++j) {
                 balls[j].update(boundary, walls, deltaTime);
             }
         });
+        startIdx = endIdx;
     }
 
-    // Join threads
-    for (auto& t : threads) {
-        if (t.joinable()) {
-            t.join();
-        }
-    }
-}
-
-
-// Draws all Ball objects on the window, using a mutex to ensure thread-safe access to the rendering context.
-void renderBalls(sf::RenderWindow& window, const std::vector<Ball>& balls) {
-    std::lock_guard<std::mutex> lock(renderMutex);
-    for (const auto& ball : balls) {
-        ball.draw(window);
+    for (auto& future : futures) {
+        future.get();
+        //future.wait();
     }
 }
 
-// Draws all Wall objects on the window, similarly using a mutex for thread-safe rendering.
-void renderWalls(sf::RenderWindow& window, const std::vector<Wall>& walls) {
-    std::lock_guard<std::mutex> lock(renderMutex);
-    for (const auto& wall : walls) {
-        wall.draw(window);
-    }
+// Example function to add a ball safely
+void addBallSafely(const Ball& ball) {
+    std::lock_guard<std::mutex> guard(vectorMutex);
+    balls.push_back(ball);
 }
