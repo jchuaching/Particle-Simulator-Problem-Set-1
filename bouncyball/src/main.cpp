@@ -479,9 +479,9 @@ int main() {
                             x = startX + t * (endX - startX); // Interpolate X
                             y = startY + t * (endY - startY); // Interpolate Y
                             // std::cout << x << " " << y;
-                            /*Ball newBall(x, y, radius, color, speed, angle);
-                            addBallSafely(newBall);*/
-                            balls.emplace_back(x, y, radius, color, speed, angle);
+                            Ball newBall(x, y, radius, color, speed, angle);
+                            addBallSafely(newBall);
+                            //balls.emplace_back(x, y, radius, color, speed, angle);
                         }
                         break;
                     case 2: // Handling for Form 2
@@ -496,7 +496,8 @@ int main() {
                             float t = (float)i / (N - 1); // Calculate interpolation parameter
                             angle = startAngle + t * (endAngle - startAngle); // Interpolate Angle
                             // std::cout << angle;
-                            balls.emplace_back(x, y, radius, color, speed, angle);
+                            Ball newBall(x, y, radius, color, speed, angle);
+                            addBallSafely(newBall);
                         }
                         break;
                     case 3: // Handling for Form 3
@@ -511,7 +512,8 @@ int main() {
                             float t = (float)i / (N - 1); // Calculate interpolation parameter
                             speed = startVelocity + t * (endVelocity - startVelocity); // Interpolate Velocity
                             // std::cout << speed;
-                            balls.emplace_back(x, y, radius, color, speed, angle);
+                            Ball newBall(x, y, radius, color, speed, angle);
+                            addBallSafely(newBall);
                         }
                         break;
                     default:
@@ -519,7 +521,8 @@ int main() {
                         y = std::stof(inputBoxes[1].inputString);
                         angle = std::stof(inputBoxes[2].inputString); // Angle in degrees
                         speed = std::stof(inputBoxes[3].inputString); // Speed
-                        balls.emplace_back(x, y, radius, color, speed, angle);
+                        Ball newBall(x, y, radius, color, speed, angle);
+                        addBallSafely(newBall);
                         break;
                     }
 

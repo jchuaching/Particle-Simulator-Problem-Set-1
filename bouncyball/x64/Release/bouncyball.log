@@ -14,7 +14,7 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.3313
   (compiling source file 'src/main.cpp')
   C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76):
   the template instantiation context (the oldest one first) is
-  	C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(367,17):
+  	C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(372,17):
   	see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::emplace_back<float&,int,const char(&)[7],sf::Font&,int>(float &,int &&,const char (&)[7],sf::Font &,int &&)' being compiled
           with
           [
@@ -73,8 +73,8 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.3313
           ]
   
   Generating code
-  2 of 1332 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+  4 of 1333 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    2 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   bouncyball.vcxproj -> C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\x64\Release\bouncyball.exe
