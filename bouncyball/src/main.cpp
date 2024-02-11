@@ -304,13 +304,12 @@ std::vector<Wall> walls; // global vector to store walls
 std::vector<Ball> balls;
 std::mutex vectorMutex; // Mutex to protect shared vectors
 int updateInterval = 5; // Update every 5 frames
-int currentFrame = 0;
 
 // Functions
 void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form);
 void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime);
 void addBallSafely(const Ball& ball); 
-void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls);
+void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame);
 void drawBalls(sf::RenderWindow& window);
 
 // Main Function
@@ -347,17 +346,17 @@ int main() {
     displayArea.setFillColor(peachFuzz);  // background for the simulation area
     displayArea.setPosition(0, 0);
     
-    if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf")) {
-    //if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
-        std::cout << "Failed to load font!" << std::endl;
-        return -1;
-    }
-
-    
-    // if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
+    // if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf")) {
+    // //if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
     //     std::cout << "Failed to load font!" << std::endl;
     //     return -1;
     // }
+
+    
+    if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
+        std::cout << "Failed to load font!" << std::endl;
+        return -1;
+    }
 
     // Initialize text labels for the sections
     sf::Text ballsTitle = createLabel("Balls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
@@ -605,7 +604,7 @@ int main() {
             window.draw(buttonText);
         }
 
-        updateBalls(static_cast<float>(deltaTime), displayArea, walls); // Now passing the display area and walls as arguments
+        updateBalls(static_cast<float>(deltaTime), displayArea, walls, frameCount); 
         drawBalls(window); // Draw balls and walls inside the display area
 
         for (auto& wall : walls) {
@@ -621,10 +620,10 @@ int main() {
             frameCount = 0; // Reset frame count and restart the display clock
             displayClock.restart();
         }
-        // Draw the FPS text
+
         window.draw(fpsText);
 
-        window.display(); // Display everything we have drawn
+        window.display(); 
     }
 
     return 0;
@@ -632,19 +631,18 @@ int main() {
 
 // FUNCTIONS --------------------------------------------------------------
 
-
-void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls) {
+// Iteratively updates a subset of all balls' positions and checks for collisions to maintain performance across frames.
+void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame) {
     // Only update a subset of balls to maintain high FPS
     for (int i = currentFrame % updateInterval; i < balls.size(); i += updateInterval) {
         balls[i].update(displayArea, walls, deltaTime); // Update the ball's position and check for collisions
     }
-    currentFrame++;
 }
 
+// Draws all balls on the window without updating their state, ensuring visual representation is consistent with their physical model.
 void drawBalls(sf::RenderWindow& window) {
-    // Draw all balls every frame without updating their state
     for (const auto& ball : balls) {
-        ball.draw(window); // Draw the ball on the window
+        ball.draw(window); 
     }
 }
 
@@ -659,6 +657,7 @@ sf::Text createLabel(const std::string& content, sf::Font& font, unsigned int si
     return label;
 }
 
+// Creates a text label for input boxes, aligning the text vertically within the input field for better UI consistency.
 sf::Text createInputLabel(const std::string& content, sf::Font& font, unsigned int size, float x, float y, float boxHeight) {
     sf::Text label;
     label.setFont(font);
@@ -690,13 +689,13 @@ sf::RectangleShape createTextButton(float x, float y, float width, float height,
     sf::Text buttonText;
     buttonText.setFont(font);
     buttonText.setString(textContent);
-    buttonText.setCharacterSize(20);  // Set to your desired size
+    buttonText.setCharacterSize(20); 
     buttonText.setFillColor(slateBlue);
     sf::FloatRect textRect = buttonText.getLocalBounds();
     buttonText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
     buttonText.setPosition(x + width / 2.0f, y + height / 2.0f);
 
-    buttonTexts.push_back(buttonText);  // Add to the vector for drawing later
+    buttonTexts.push_back(buttonText); 
 
     return button;
 }
@@ -704,11 +703,6 @@ sf::RectangleShape createTextButton(float x, float y, float width, float height,
 // Calculates the reflection of a vector (velocity) off a surface with a given normal vector, using the reflection formula.
 sf::Vector2f reflect(const sf::Vector2f& velocity, const sf::Vector2f& normal) {
     return velocity - 2 * (velocity.x * normal.x + velocity.y * normal.y) * normal;
-}
-
-float distanceFromPointToLine(sf::Vector2f A, sf::Vector2f B, sf::Vector2f P) {
-    return std::abs((B.y - A.y) * P.x - (B.x - A.x) * P.y + B.x * A.y - B.y * A.x) /
-        std::sqrt((B.y - A.y) * (B.y - A.y) + (B.x - A.x) * (B.x - A.x));
 }
 
 // Computes the normal (perpendicular) vector to a Wall object, which is used in collision reflection calculations.
@@ -722,7 +716,7 @@ sf::Vector2f getWallNormal(const Wall& wall) {
 
 // Helper function that dynamically updates the set of input boxes displayed in the sidebar based on the active form selection, clearing any existing boxes and adding new ones as needed.
 void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form) {
-    inputBoxes.clear(); // Clear existing input boxes
+    inputBoxes.clear(); 
     
     if (form == 1) {
         // Add new input boxes for "Form 1"
@@ -777,7 +771,6 @@ void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float s
     inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y1:", font);
     inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X2:", font);
     inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y2:", font);
-
 }
 
 // Updates the positions of all Ball objects in parallel using multiple threads to handle large numbers of balls efficiently.
@@ -807,11 +800,10 @@ void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& b
 
     for (auto& future : futures) {
         future.get();
-        //future.wait();
     }
 }
 
-// Example function to add a ball safely
+// Safely adds a new ball to the global balls vector using mutex locking to prevent concurrent access issues in a multithreaded environment.
 void addBallSafely(const Ball& ball) {
     std::lock_guard<std::mutex> guard(vectorMutex);
     balls.push_back(ball);
