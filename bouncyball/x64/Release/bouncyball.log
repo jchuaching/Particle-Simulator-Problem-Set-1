@@ -1,2 +1,80 @@
 ﻿  main.cpp
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\main.cpp(199,10): error C1083: Cannot open include file: 'SFML/Graphics.hpp': No such file or directory
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(49,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(135,30): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): warning C4244: 'argument': conversion from 'unsigned int' to 'T', possible loss of data
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): warning C4244:         with
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): warning C4244:         [
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): warning C4244:             T=float
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): warning C4244:         ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244: 'argument': conversion from '_Ty' to 'float', possible loss of data
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244:         with
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244:         [
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244:             _Ty=int
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244:         ]
+  (compiling source file 'src/main.cpp')
+  C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76):
+  the template instantiation context (the oldest one first) is
+  	C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(367,17):
+  	see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::emplace_back<float&,int,const char(&)[7],sf::Font&,int>(float &,int &&,const char (&)[7],sf::Font &,int &&)' being compiled
+          with
+          [
+              _Ty=RadioButton
+          ]
+  	C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\vector(862,24):
+  	see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_one_at_back<float&,int,const char(&)[7],sf::Font&,int>(float &,int &&,const char (&)[7],sf::Font &,int &&)' being compiled
+          with
+          [
+              _Ty=RadioButton
+          ]
+  	C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\vector(780,20):
+  	see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_back_with_unused_capacity<float&,int,const char(&)[7],sf::Font&,int>(float &,int &&,const char (&)[7],sf::Font &,int &&)' being compiled
+          with
+          [
+              _Ty=RadioButton
+          ]
+  	C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\vector(798,27):
+  	see reference to function template instantiation 'void std::_Default_allocator_traits<_Alloc>::construct<_Ty,float&,int,const char(&)[7],sf::Font&,int>(_Alloc &,_Objty *const ,float &,int &&,const char (&)[7],sf::Font &,int &&)' being compiled
+          with
+          [
+              _Alloc=std::allocator<RadioButton>,
+              _Ty=RadioButton,
+              _Objty=RadioButton
+          ]
+  	C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xmemory(721,14):
+  	see reference to function template instantiation '_Ty *std::construct_at<_Objty,float&,int,const char(&)[7],sf::Font&,int,0x0>(_Ty *const ,float &,int &&,const char (&)[7],sf::Font &,int &&) noexcept(<expr>)' being compiled
+          with
+          [
+              _Ty=RadioButton,
+              _Objty=RadioButton
+          ]
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(242,90): warning C4244: 'argument': conversion from '_Ty' to 'float', possible loss of data
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(242,90): warning C4244:         with
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(242,90): warning C4244:         [
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(242,90): warning C4244:             _Ty=int
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(242,90): warning C4244:         ]
+  (compiling source file 'src/main.cpp')
+  C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(242,90):
+  the template instantiation context (the oldest one first) is
+  	C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\vector(798,27):
+  	see reference to function template instantiation 'void std::_Default_allocator_traits<_Alloc>::construct<_Ty,float&,int,const char(&)[7],sf::Font&,int>(_Alloc &,_Objty *const ,float &,int &&,const char (&)[7],sf::Font &,int &&)' being compiled
+          with
+          [
+              _Alloc=std::allocator<RadioButton>,
+              _Ty=RadioButton,
+              _Objty=RadioButton
+          ]
+  	C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xmemory(721,14):
+  	see reference to function template instantiation '_Ty *std::construct_at<_Objty,float&,int,const char(&)[7],sf::Font&,int,0x0>(_Ty *const ,float &,int &&,const char (&)[7],sf::Font &,int &&) noexcept(false)' being compiled
+          with
+          [
+              _Ty=RadioButton,
+              _Objty=RadioButton
+          ]
+  
+  Generating code
+  2 of 1332 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  bouncyball.vcxproj -> C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\x64\Release\bouncyball.exe

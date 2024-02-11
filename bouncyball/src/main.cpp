@@ -302,7 +302,6 @@ public:
 // Variables
 std::vector<Wall> walls; // global vector to store walls
 std::vector<Ball> balls;
-//std::mutex renderMutex; // Global mutex for rendering synchronization
 std::mutex vectorMutex; // Mutex to protect shared vectors
 int updateInterval = 5; // Update every 5 frames
 int currentFrame = 0;
@@ -601,11 +600,8 @@ int main() {
         }
 
         updateBalls(static_cast<float>(deltaTime), displayArea, walls); // Now passing the display area and walls as arguments
-        drawBalls(window);
-        // Draw balls and walls inside the display area
-        /*for (auto& ball : balls) {
-            ball.draw(window);
-        }*/
+        drawBalls(window); // Draw balls and walls inside the display area
+
         for (auto& wall : walls) {
             wall.draw(window);
         }
@@ -614,11 +610,9 @@ int main() {
 
         // Check if half a second has passed to update the FPS display
         if (displayClock.getElapsedTime().asSeconds() >= 1.f) {
-            float fps = frameCount / fpsClock.restart().asSeconds();             // Calculate FPS
+            float fps = frameCount / fpsClock.restart().asSeconds(); // Calculate FPS
             fpsText.setString("FPS: " + std::to_string(static_cast<int>(fps)));
-
-
-            frameCount = 0;             // Reset frame count and restart the display clock
+            frameCount = 0; // Reset frame count and restart the display clock
             displayClock.restart();
         }
         // Draw the FPS text
