@@ -354,6 +354,12 @@ int main() {
         return -1;
     }
 
+    
+    // if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
+    //     std::cout << "Failed to load font!" << std::endl;
+    //     return -1;
+    // }
+
     // Initialize text labels for the sections
     sf::Text ballsTitle = createLabel("Balls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
     sf::Text wallsTitle = createLabel("Walls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 360+70);
