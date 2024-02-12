@@ -6,16 +6,16 @@ C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): war
 C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): warning C4244:         [
 C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): warning C4244:             T=float
 C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): warning C4244:         ]
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(496,61): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(500,57): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(530,61): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(534,57): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(563,61): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(567,57): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(593,61): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(597,57): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(633,57): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(637,53): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(495,61): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(499,57): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(529,61): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(533,57): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(562,61): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(566,57): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(592,61): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(596,57): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(632,57): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(636,53): warning C4101: 'e': unreferenced local variable
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244: 'argument': conversion from '_Ty' to 'float', possible loss of data
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244:         with
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244:         [
@@ -24,7 +24,7 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.3313
   (compiling source file 'src/main.cpp')
   C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76):
   the template instantiation context (the oldest one first) is
-  	C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(381,17):
+  	C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(380,17):
   	see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::emplace_back<float&,int,const char(&)[7],sf::Font&,int>(float &,int &&,const char (&)[7],sf::Font &,int &&)' being compiled
           with
           [

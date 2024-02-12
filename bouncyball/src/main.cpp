@@ -626,8 +626,7 @@ int main() {
                         x1 = std::stof(inputBoxes[n_input].inputString);
                         y1 = std::stof(inputBoxes[n_input+1].inputString);
                         x2 = std::stof(inputBoxes[n_input+2].inputString);
-                        y2 = std::stof(inputBoxes[n_input+3].inputString);
-                        triggerErrorMessage();
+                        y2 = std::stof(inputBoxes[n_input + 3].inputString);
                     }
                     catch (std::invalid_argument const& e) {
                         std::cerr << "Invalid input: not a number" << std::endl;
