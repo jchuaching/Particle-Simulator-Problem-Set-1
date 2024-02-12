@@ -16,8 +16,16 @@ Make sure that you have the following installed on your system:
 ```
 git clone https://github.com/your-username/bouncyball.git
 ```
+Alternatively, you could also do the following:
+1. Open Visual Studio.
+2. Select Clone or check out code from the opening screen.
+3. Enter the URL of the GitHub repository in the repository location box.
+4. Click Clone.
 
 ## Step 2: Open the Project in Visual Studio
+If you cloned the repository from within Visual Studio, it should be ready to open. 
+Otherwise:
+
 1. Launch Microsoft Visual Studio.
 2. Select 'Open a project or solution' from the 'Get started' section.
 3. Navigate to the directory where you cloned the repository.
