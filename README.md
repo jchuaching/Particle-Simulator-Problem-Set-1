@@ -1,5 +1,5 @@
 # PARTICLE SIMULATOR
-Chua Ching, Dytoc
+Chua Ching, Dytoc <br>
 Problem Set #1 STDISCM
 
 ---
