@@ -80,7 +80,6 @@ public:
         // Initially not selected, so inner circle is not visible
         innerCircle.setFillColor(sf::Color::Transparent);
 
-        // Setting up the label
         this->labelText.setFont(font);
         this->labelText.setString(label);
         this->labelText.setCharacterSize(characterSize);
@@ -99,7 +98,7 @@ public:
             innerCircle.setFillColor(sf::Color::Transparent);
         }
         window.draw(innerCircle);
-        window.draw(labelText); // Draw the label text
+        window.draw(labelText);
     }
 
     void select() {
@@ -121,7 +120,7 @@ sf::Vector2f getWallNormal(const Wall& wall);
 class Ball {
 public:
     sf::CircleShape shape;
-    float vx, vy; // Velocity components
+    float vx, vy; 
 
     Ball(float x, float y, float radius, sf::Color color, float speed, float angleInDegrees)
     : shape(radius) {
@@ -161,7 +160,7 @@ public:
             return true;
         }
 
-        return false; // No collision
+        return false; 
     }
 
     // Function to update the ball position and check for boundary collisions
@@ -193,7 +192,7 @@ public:
         sf::Vector2f wallNormal;
         for (const auto& wall : walls) {
             if (lineIntersect(startPosition, endPosition, wall.start, wall.end, &collisionPoint)) {
-                collisionDetected = true;                 // Collision detected
+                collisionDetected = true;                 
                 wallNormal = getWallNormal(wall);
                 break;
             }
@@ -211,7 +210,7 @@ public:
             sf::Vector2f newPosition = collisionPoint - (incomingVelocity * deltaTime * 0.5f);
             shape.setPosition(newPosition);
         } else {
-            shape.setPosition(endPosition);             // If no collision was detected,  move the ball to its new position
+            shape.setPosition(endPosition); // move the ball to its new position
         }
     }
 };
@@ -261,7 +260,7 @@ public:
     void handleEvent(const sf::Event& event) {
         if (!isActive) return;
 
-        if (event.type == sf::Event::TextEntered) {         // Handle keyboard input
+        if (event.type == sf::Event::TextEntered) { // Handle keyboard input
             if (event.text.unicode < 128) {
                 if (event.text.unicode == '\b') { // Handle backspace
                     if (!inputString.empty()) {
@@ -278,7 +277,7 @@ public:
     }
 
     void update() {
-        if (isActive) {         // Blinking cursor logic
+        if (isActive) { // Blinking cursor logic
             if (cursorClock.getElapsedTime().asSeconds() >= 0.5f) {
                 cursorVisible = !cursorVisible;
                 cursorClock.restart();
@@ -300,7 +299,7 @@ public:
 };
 
 // Variables
-std::vector<Wall> walls; // global vector to store walls
+std::vector<Wall> walls; 
 std::vector<Ball> balls;
 std::mutex vectorMutex; // Mutex to protect shared vectors
 int updateInterval = 5; // Update every 5 frames
@@ -328,11 +327,9 @@ int main() {
     
     sf::Font font;
     std::vector<RadioButton> radioButtons;
-    std::vector<InputBox> inputBoxes; // Define input boxes for the balls and walls
-    std::vector<sf::RectangleShape> buttons;   // Define buttons and their labels
+    std::vector<InputBox> inputBoxes;
+    std::vector<sf::RectangleShape> buttons;  
     std::vector<sf::Text> buttonTexts;
-
-    //std::vector<Ball> balls;  // Vector to hold all the balls
 
     // Create the main window
     sf::ContextSettings settings;
@@ -350,16 +347,6 @@ int main() {
     sf::RectangleShape displayArea(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH, WINDOW_HEIGHT));
     displayArea.setFillColor(peachFuzz);  // background for the simulation area
     displayArea.setPosition(0, 0);
-    
-    //   if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf")) {
-    //       std::cout << "Failed to load font!" << std::endl;
-    //       return -1;
-    //   }
-    
-    /*if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
-       std::cout << "Failed to load font!" << std::endl;
-       return -1;
-    }*/
 
     if (!font.loadFromFile("res/Inter-Regular.ttf")) {
         std::cerr << "Failed to load font!" << std::endl;
@@ -399,13 +386,11 @@ int main() {
     float deltaTime = clock.restart().asSeconds();
 
     //Error Message
-    errorMessage.setFont(font); // Assuming 'font' is already loaded
+    errorMessage.setFont(font); 
     errorMessage.setString("Input Error");
-    errorMessage.setCharacterSize(16); // Example size
-    errorMessage.setFillColor(sf::Color::Red); // Error message color
-    // Position the error message in the upper right corner of the displayArea
+    errorMessage.setCharacterSize(16); 
+    errorMessage.setFillColor(sf::Color::Red);
     errorMessage.setPosition(WINDOW_WIDTH - SIDEBAR_WIDTH - errorMessage.getLocalBounds().width - 10, 10);
-
     
     // Main event loop
     while (window.isOpen()) {
@@ -434,7 +419,7 @@ int main() {
                             radio.select(); // If the clicked radio button was not already selected, select it
                         }
                 
-                        // If no radio button is selected (i.e., the clicked button was deselected),revert input boxes to their original state.
+                        // If no radio button is selected,revert input boxes to their original state.
                         if (!radio.isSelected) {     
                             updateInputBoxes(inputBoxes, font, 110, -1);
                             activeForm = -1;
@@ -518,9 +503,9 @@ int main() {
                         break;
                     case 2: // Handling for Form 2
                         try {
-                            N = std::stoi(inputBoxes[0].inputString); // Number of balls
-                            x = std::stof(inputBoxes[1].inputString); // X position
-                            y = std::stof(inputBoxes[2].inputString); // Y position
+                            N = std::stoi(inputBoxes[0].inputString);
+                            x = std::stof(inputBoxes[1].inputString); 
+                            y = std::stof(inputBoxes[2].inputString);
                             startAngle = std::stof(inputBoxes[3].inputString);
                             endAngle = std::stof(inputBoxes[4].inputString);
                             speed = std::stof(inputBoxes[5].inputString);
@@ -552,9 +537,9 @@ int main() {
                         break;
                     case 3: // Handling for Form 3
                         try {
-                            N = std::stoi(inputBoxes[0].inputString); // Number of balls
-                            x = std::stof(inputBoxes[1].inputString); // X position
-                            y = std::stof(inputBoxes[2].inputString); // Y position
+                            N = std::stoi(inputBoxes[0].inputString); 
+                            x = std::stof(inputBoxes[1].inputString);
+                            y = std::stof(inputBoxes[2].inputString);
                             angle = std::stof(inputBoxes[3].inputString);
                             startVelocity = std::stof(inputBoxes[4].inputString);
                             endVelocity = std::stof(inputBoxes[5].inputString);
@@ -586,8 +571,8 @@ int main() {
                         try{
                             x = std::stof(inputBoxes[0].inputString);
                             y = std::stof(inputBoxes[1].inputString);
-                            angle = std::stof(inputBoxes[2].inputString); // Angle in degrees
-                            speed = std::stof(inputBoxes[3].inputString); // Speed
+                            angle = std::stof(inputBoxes[2].inputString); 
+                            speed = std::stof(inputBoxes[3].inputString);
                         }
                         catch (std::invalid_argument const& e) {
                             std::cerr << "Invalid input for X: not a number" << std::endl;
@@ -619,7 +604,6 @@ int main() {
 
                 // Check if the "Add" button for walls was clicked
                 if (buttons[1].getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
-                    // Get wall input values
                     float x1, y1,x2, y2;
 
                     try{
@@ -637,7 +621,7 @@ int main() {
                         triggerErrorMessage();
                     }
                     
-                    if(x1 < WINDOW_WIDTH && y1 < WINDOW_HEIGHT && x2 < WINDOW_WIDTH && y2 < WINDOW_HEIGHT)
+                    if(x1 < WINDOW_WIDTH - SIDEBAR_WIDTH && y1 < WINDOW_HEIGHT && x2 < WINDOW_WIDTH - SIDEBAR_WIDTH && y2 < WINDOW_HEIGHT)
                     {
                         // Check if the input values are within the display area
                         if (displayArea.getGlobalBounds().contains(x1, y1) && displayArea.getGlobalBounds().contains(x2, y2)) {
@@ -702,7 +686,7 @@ int main() {
         window.draw(wallsTitle);
         window.draw(batchFormTitle);
 
-        // Before window.display(); to ensure they are drawn in this frame
+        // ensure radio buttons are drawn in this frame
         for (auto& radio : radioButtons) {
             radio.draw(window);
         }
@@ -739,8 +723,6 @@ int main() {
         }
 
         window.draw(fpsText);
-
-        // Inside the main loop, before window.display()
 
         if (showError) {
             // Check if the error display time has elapsed
@@ -939,6 +921,7 @@ void addBallSafely(const Ball& ball) {
     balls.push_back(ball);
 }
 
+// Allows the error message to be shown when an error input has been placed by the user
 void triggerErrorMessage() {
     showError = true;
     errorClock.restart();
