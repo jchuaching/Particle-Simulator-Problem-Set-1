@@ -304,6 +304,10 @@ std::vector<Wall> walls; // global vector to store walls
 std::vector<Ball> balls;
 std::mutex vectorMutex; // Mutex to protect shared vectors
 int updateInterval = 5; // Update every 5 frames
+sf::Text errorMessage;
+bool showError = false;
+sf::Clock errorClock; // Tracks how long the error message has been displayed
+const float errorDisplayTime = 3.0f; // Error message display time in seconds
 
 // Functions
 void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form);
@@ -311,6 +315,7 @@ void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& b
 void addBallSafely(const Ball& ball); 
 void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame);
 void drawBalls(sf::RenderWindow& window);
+void triggerErrorMessage();
 
 // Main Function
 int main() {
@@ -346,15 +351,15 @@ int main() {
     displayArea.setFillColor(peachFuzz);  // background for the simulation area
     displayArea.setPosition(0, 0);
     
-    //  if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf")) {
-    //      std::cout << "Failed to load font!" << std::endl;
-    //      return -1;
-    //  }
+      if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf")) {
+          std::cout << "Failed to load font!" << std::endl;
+          return -1;
+      }
     
-    if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
+    /*if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
        std::cout << "Failed to load font!" << std::endl;
        return -1;
-    }
+    }*/
 
     // Initialize text labels for the sections
     sf::Text ballsTitle = createLabel("Balls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
@@ -387,6 +392,14 @@ int main() {
     fpsText.setPosition(WINDOW_WIDTH - 210, WINDOW_HEIGHT - 50); // Position it at the top-right corner
     int activeForm = -1;
     float deltaTime = clock.restart().asSeconds();
+
+    //Error Message
+    errorMessage.setFont(font); // Assuming 'font' is already loaded
+    errorMessage.setString("Input Error");
+    errorMessage.setCharacterSize(16); // Example size
+    errorMessage.setFillColor(sf::Color::Red); // Error message color
+    // Position the error message in the upper right corner of the displayArea
+    errorMessage.setPosition(WINDOW_WIDTH - SIDEBAR_WIDTH - errorMessage.getLocalBounds().width - 10, 10);
 
     
     // Main event loop
@@ -476,13 +489,15 @@ int main() {
                         }
                         catch (std::invalid_argument const& e) {
                             std::cerr << "Invalid input for X: not a number" << std::endl;
+                            triggerErrorMessage();
                         }
                         catch (std::out_of_range const& e) {
                             std::cerr << "Invalid input for X: out of range" << std::endl;
+                            triggerErrorMessage();
                         }
 
                         if (N > 0 && startX >= 0 && startY >= 0 && endX >= 0 && endY >= 0 && speed >= 0 &&  
-                         startX < WINDOW_WIDTH && startY < WINDOW_HEIGHT && endX < WINDOW_WIDTH && endY < WINDOW_HEIGHT) {
+                         startX <= WINDOW_WIDTH-SIDEBAR_WIDTH && startY <= WINDOW_HEIGHT && endX <= WINDOW_WIDTH-SIDEBAR_WIDTH && endY <= WINDOW_HEIGHT) {
                             for (int i = 0; i < N; ++i) {
                                 float t = (float)i / (N - 1); // Calculate interpolation parameter
                                 x = startX + t * (endX - startX); // Interpolate X
@@ -492,6 +507,7 @@ int main() {
                             } 
                         } else{
                             std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
+                            triggerErrorMessage();
                         }
                     
                         break;
@@ -507,13 +523,15 @@ int main() {
                         }   
                         catch (std::invalid_argument const& e) {
                             std::cerr << "Invalid input for X: not a number" << std::endl;
+                            triggerErrorMessage();
                         }
                         catch (std::out_of_range const& e) {
                             std::cerr << "Invalid input for X: out of range" << std::endl;
+                            triggerErrorMessage();
                         }
 
                         if(N > 0 && x >= 0 && y >= 0 && startAngle >= 0 && endAngle >= 0 && speed >= 0 && 
-                        x < WINDOW_WIDTH && y < WINDOW_HEIGHT){
+                            x <= WINDOW_WIDTH-SIDEBAR_WIDTH && y <= WINDOW_HEIGHT){
                             for (int i = 0; i < N; ++i) {
                                 float t = (float)i / (N - 1); // Calculate interpolation parameter
                                 angle = startAngle + t * (endAngle - startAngle); // Interpolate Angle
@@ -523,6 +541,7 @@ int main() {
                         }
                         else{
                             std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
+                            triggerErrorMessage();
                         }
             
                         break;
@@ -537,13 +556,15 @@ int main() {
                         }
                         catch (std::invalid_argument const& e) {
                             std::cerr << "Invalid input for X: not a number" << std::endl;
+                            triggerErrorMessage();
                         }
                         catch (std::out_of_range const& e) {
                             std::cerr << "Invalid input for X: out of range" << std::endl;
+                            triggerErrorMessage();
                         }
 
                         if(N > 0 && x >= 0 && y >= 0 && angle >= 0 && startVelocity >= 0 && endVelocity >= 0 &&
-                        x < WINDOW_WIDTH && y < WINDOW_HEIGHT){
+                            x <= WINDOW_WIDTH - SIDEBAR_WIDTH && y <= WINDOW_HEIGHT){
                             for (int i = 0; i < N; ++i) {
                                 float t = (float)i / (N - 1); // Calculate interpolation parameter
                                 speed = startVelocity + t * (endVelocity - startVelocity); // Interpolate Velocity
@@ -552,6 +573,7 @@ int main() {
                             }
                         } else {
                             std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
+                            triggerErrorMessage();
                         }
                         
                         break;
@@ -564,17 +586,20 @@ int main() {
                         }
                         catch (std::invalid_argument const& e) {
                             std::cerr << "Invalid input for X: not a number" << std::endl;
+                            triggerErrorMessage();
                         }
                         catch (std::out_of_range const& e) {
                             std::cerr << "Invalid input for X: out of range" << std::endl;
+                            triggerErrorMessage();
                         }
                         
                         if(x >= 0 && y >= 0 && angle >= 0 && speed >= 0 &&
-                        x < WINDOW_WIDTH && y < WINDOW_HEIGHT){
+                            x <= WINDOW_WIDTH - SIDEBAR_WIDTH && y <= WINDOW_HEIGHT){
                             Ball newBall(x, y, radius, color, speed, angle);
                             addBallSafely(newBall);
                         } else{
                             std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
+                            triggerErrorMessage();
                         }
                         
                         break;
@@ -597,12 +622,15 @@ int main() {
                         y1 = std::stof(inputBoxes[n_input+1].inputString);
                         x2 = std::stof(inputBoxes[n_input+2].inputString);
                         y2 = std::stof(inputBoxes[n_input+3].inputString);
+                        triggerErrorMessage();
                     }
                     catch (std::invalid_argument const& e) {
                         std::cerr << "Invalid input: not a number" << std::endl;
+                        triggerErrorMessage();
                     }
                     catch (std::out_of_range const& e) {
                         std::cerr << "Invalid input: out of range" << std::endl;
+                        triggerErrorMessage();
                     }
                     
                     if(x1 < WINDOW_WIDTH && y1 < WINDOW_HEIGHT && x2 < WINDOW_WIDTH && y2 < WINDOW_HEIGHT)
@@ -618,6 +646,7 @@ int main() {
                             }
                         } else {
                             std::cout << "Wall coordinates must be within the display area!" << std::endl;
+                            triggerErrorMessage();
                             // Clear the input fields
                             for (int i = n_input; i < n_input+4; ++i) {
                                 inputBoxes[i].inputString.clear();
@@ -627,6 +656,7 @@ int main() {
 
                     }else {
                             std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
+                            triggerErrorMessage();
                             // Clear the input fields
                             for (int i = n_input; i < n_input+4; ++i) {
                                 inputBoxes[i].inputString.clear();
@@ -705,6 +735,19 @@ int main() {
         }
 
         window.draw(fpsText);
+
+        // Inside the main loop, before window.display()
+
+        if (showError) {
+            // Check if the error display time has elapsed
+            if (errorClock.getElapsedTime().asSeconds() >= errorDisplayTime) {
+                showError = false; // Stop showing the error message
+            }
+            else {
+                // Render the error message
+                window.draw(errorMessage);
+            }
+        }
 
         window.display(); 
     }
@@ -890,4 +933,9 @@ void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& b
 void addBallSafely(const Ball& ball) {
     std::lock_guard<std::mutex> guard(vectorMutex);
     balls.push_back(ball);
+}
+
+void triggerErrorMessage() {
+    showError = true;
+    errorClock.restart();
 }

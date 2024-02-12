@@ -6,14 +6,16 @@ C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): war
 C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): warning C4244:         [
 C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): warning C4244:             T=float
 C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(254,76): warning C4244:         ]
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(477,61): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(482,57): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(507,61): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(512,57): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(535,61): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(540,57): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(561,61): warning C4101: 'e': unreferenced local variable
-C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(566,57): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(490,61): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(494,57): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(524,61): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(528,57): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(557,61): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(561,57): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(587,61): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(591,57): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(626,57): warning C4101: 'e': unreferenced local variable
+C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(629,53): warning C4101: 'e': unreferenced local variable
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244: 'argument': conversion from '_Ty' to 'float', possible loss of data
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244:         with
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76): warning C4244:         [
@@ -22,7 +24,7 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.3313
   (compiling source file 'src/main.cpp')
   C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\xutility(241,76):
   the template instantiation context (the oldest one first) is
-  	C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(371,17):
+  	C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\src\main.cpp(375,17):
   	see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::emplace_back<float&,int,const char(&)[7],sf::Font&,int>(float &,int &&,const char (&)[7],sf::Font &,int &&)' being compiled
           with
           [
@@ -81,8 +83,8 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.3313
           ]
   
   Generating code
-  2 of 1334 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+  2 of 1337 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    26 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   bouncyball.vcxproj -> C:\Users\Ayisha\Documents\GitHub\bouncyball\bouncyball\x64\Release\bouncyball.exe
