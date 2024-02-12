@@ -346,17 +346,15 @@ int main() {
     displayArea.setFillColor(peachFuzz);  // background for the simulation area
     displayArea.setPosition(0, 0);
     
-    // if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf")) {
-    // //if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
-    //     std::cout << "Failed to load font!" << std::endl;
-    //     return -1;
-    // }
-
+     if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf")) {
+         std::cout << "Failed to load font!" << std::endl;
+         return -1;
+     }
     
-    if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
-        std::cout << "Failed to load font!" << std::endl;
-        return -1;
-    }
+    //if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
+    //    std::cout << "Failed to load font!" << std::endl;
+    //    return -1;
+    //}
 
     // Initialize text labels for the sections
     sf::Text ballsTitle = createLabel("Balls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
@@ -466,13 +464,21 @@ int main() {
 
                     switch (activeForm) {
                     case 1: // Handling for Form 1
-                        N = std::stoi(inputBoxes[0].inputString); // Number of balls
-                        startX = std::stof(inputBoxes[1].inputString);
-                        startY = std::stof(inputBoxes[2].inputString);
-                        endX = std::stof(inputBoxes[3].inputString);
-                        endY = std::stof(inputBoxes[4].inputString);
-                        angle = std::stof(inputBoxes[5].inputString);
-                        speed = std::stof(inputBoxes[6].inputString);
+                        try {
+                            N = std::stoi(inputBoxes[0].inputString);
+                            startX = std::stof(inputBoxes[1].inputString);
+                            startY = std::stof(inputBoxes[2].inputString);
+                            endX = std::stof(inputBoxes[3].inputString);
+                            endY = std::stof(inputBoxes[4].inputString);
+                            angle = std::stof(inputBoxes[5].inputString);
+                            speed = std::stof(inputBoxes[6].inputString);
+                        }
+                        catch (std::invalid_argument const& e) {
+                            std::cerr << "Invalid input for X: not a number" << std::endl;
+                        }
+                        catch (std::out_of_range const& e) {
+                            std::cerr << "Invalid input for X: out of range" << std::endl;
+                        }
 
                         for (int i = 0; i < N; ++i) {
                             float t = (float)i / (N - 1); // Calculate interpolation parameter
@@ -485,12 +491,20 @@ int main() {
                         }
                         break;
                     case 2: // Handling for Form 2
-                        N = std::stoi(inputBoxes[0].inputString); // Number of balls
-                        x = std::stof(inputBoxes[1].inputString); // X position
-                        y = std::stof(inputBoxes[2].inputString); // Y position
-                        startAngle = std::stof(inputBoxes[3].inputString);
-                        endAngle = std::stof(inputBoxes[4].inputString);
-                        speed = std::stof(inputBoxes[5].inputString);
+                        try {
+                            N = std::stoi(inputBoxes[0].inputString); // Number of balls
+                            x = std::stof(inputBoxes[1].inputString); // X position
+                            y = std::stof(inputBoxes[2].inputString); // Y position
+                            startAngle = std::stof(inputBoxes[3].inputString);
+                            endAngle = std::stof(inputBoxes[4].inputString);
+                            speed = std::stof(inputBoxes[5].inputString);
+                        }   
+                        catch (std::invalid_argument const& e) {
+                            std::cerr << "Invalid input for X: not a number" << std::endl;
+                        }
+                        catch (std::out_of_range const& e) {
+                            std::cerr << "Invalid input for X: out of range" << std::endl;
+                        }
 
                         for (int i = 0; i < N; ++i) {
                             float t = (float)i / (N - 1); // Calculate interpolation parameter
@@ -501,12 +515,20 @@ int main() {
                         }
                         break;
                     case 3: // Handling for Form 3
-                        N = std::stoi(inputBoxes[0].inputString); // Number of balls
-                        x = std::stof(inputBoxes[1].inputString); // X position
-                        y = std::stof(inputBoxes[2].inputString); // Y position
-                        angle = std::stof(inputBoxes[3].inputString);
-                        startVelocity = std::stof(inputBoxes[4].inputString);
-                        endVelocity = std::stof(inputBoxes[5].inputString);
+                        try {
+                            N = std::stoi(inputBoxes[0].inputString); // Number of balls
+                            x = std::stof(inputBoxes[1].inputString); // X position
+                            y = std::stof(inputBoxes[2].inputString); // Y position
+                            angle = std::stof(inputBoxes[3].inputString);
+                            startVelocity = std::stof(inputBoxes[4].inputString);
+                            endVelocity = std::stof(inputBoxes[5].inputString);
+                        }
+                        catch (std::invalid_argument const& e) {
+                            std::cerr << "Invalid input for X: not a number" << std::endl;
+                        }
+                        catch (std::out_of_range const& e) {
+                            std::cerr << "Invalid input for X: out of range" << std::endl;
+                        }
 
                         for (int i = 0; i < N; ++i) {
                             float t = (float)i / (N - 1); // Calculate interpolation parameter
@@ -517,10 +539,19 @@ int main() {
                         }
                         break;
                     default:
-                        x = std::stof(inputBoxes[0].inputString);
-                        y = std::stof(inputBoxes[1].inputString);
-                        angle = std::stof(inputBoxes[2].inputString); // Angle in degrees
-                        speed = std::stof(inputBoxes[3].inputString); // Speed
+                        try{
+                            x = std::stof(inputBoxes[0].inputString);
+                            y = std::stof(inputBoxes[1].inputString);
+                            angle = std::stof(inputBoxes[2].inputString); // Angle in degrees
+                            speed = std::stof(inputBoxes[3].inputString); // Speed
+                        }
+                        catch (std::invalid_argument const& e) {
+                            std::cerr << "Invalid input for X: not a number" << std::endl;
+                        }
+                        catch (std::out_of_range const& e) {
+                            std::cerr << "Invalid input for X: out of range" << std::endl;
+                        }
+                        
                         Ball newBall(x, y, radius, color, speed, angle);
                         addBallSafely(newBall);
                         break;
