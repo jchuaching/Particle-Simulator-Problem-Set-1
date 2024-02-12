@@ -30,7 +30,7 @@ git clone https://github.com/your-username/bouncyball.git
 ```
 https://github.com/your-username/bouncyball.git
 ```
-with the actual URL of your repository.
+with the actual URL of the repository.
 
 ## Step 2: Open the Project
 If you cloned the repository from within Visual Studio, it should be ready to open. Otherwise:
