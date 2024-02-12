@@ -361,7 +361,7 @@ int main() {
        return -1;
     }*/
 
-    if (!font.loadFromFile("../res/Inter-Regular.ttf")) {
+    if (!font.loadFromFile("res/Inter-Regular.ttf")) {
     std::cerr << "Failed to load font!" << std::endl;
     return -1;
     }
