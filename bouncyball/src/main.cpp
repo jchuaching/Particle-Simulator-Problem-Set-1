@@ -761,21 +761,6 @@ int main() {
 
 // FUNCTIONS --------------------------------------------------------------
 
-// Iteratively updates a subset of all balls' positions and checks for collisions to maintain performance across frames.
-void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame) {
-    // Only update a subset of balls to maintain high FPS
-    for (int i = currentFrame % updateInterval; i < balls.size(); i += updateInterval) {
-        balls[i].update(displayArea, walls, deltaTime); // Update the ball's position and check for collisions
-    }
-}
-
-// Draws all balls on the window without updating their state, ensuring visual representation is consistent with their physical model.
-void drawBalls(sf::RenderWindow& window) {
-    for (const auto& ball : balls) {
-        ball.draw(window); 
-    }
-}
-
 // Generates a text label at a specified position with a given font, size, and content, setting its color to slateBlue.
 sf::Text createLabel(const std::string& content, sf::Font& font, unsigned int size, float x, float y) {
     sf::Text label;
@@ -842,6 +827,21 @@ sf::Vector2f getWallNormal(const Wall& wall) {
     float length = std::sqrt(normal.x * normal.x + normal.y * normal.y);     // Normalize the normal vector
     normal /= length;
     return normal;
+}
+
+// Iteratively updates a subset of all balls' positions and checks for collisions to maintain performance across frames.
+void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame) {
+    // Only update a subset of balls to maintain high FPS
+    for (int i = currentFrame % updateInterval; i < balls.size(); i += updateInterval) {
+        balls[i].update(displayArea, walls, deltaTime); // Update the ball's position and check for collisions
+    }
+}
+
+// Draws all balls on the window without updating their state, ensuring visual representation is consistent with their physical model.
+void drawBalls(sf::RenderWindow& window) {
+    for (const auto& ball : balls) {
+        ball.draw(window);
+    }
 }
 
 // Helper function that dynamically updates the set of input boxes displayed in the sidebar based on the active form selection, clearing any existing boxes and adding new ones as needed.
