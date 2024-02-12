@@ -361,11 +361,15 @@ int main() {
        return -1;
     }*/
 
-    if (!font.loadFromFile("../res/Inter-Regular.ttf")) {
-    std::cerr << "Failed to load font!" << std::endl;
-    return -1;
-    }
+    // if (!font.loadFromFile("../res/Inter-Regular.ttf")) {
+    // std::cerr << "Failed to load font!" << std::endl;
+    // return -1;
+    // }
 
+    if (!font.loadFromFile("res/Inter-Regular.ttf")) {
+        std::cerr << "Failed to load font!" << std::endl;
+        return -1;
+    }
 
     // Initialize text labels for the sections
     sf::Text ballsTitle = createLabel("Balls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
