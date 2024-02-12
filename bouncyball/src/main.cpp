@@ -346,15 +346,15 @@ int main() {
     displayArea.setFillColor(peachFuzz);  // background for the simulation area
     displayArea.setPosition(0, 0);
     
-     if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf")) {
-         std::cout << "Failed to load font!" << std::endl;
-         return -1;
-     }
+    //  if (!font.loadFromFile("C:/Users/Ayisha/Documents/GitHub/bouncyball/bouncyball/res/Inter-Regular.ttf")) {
+    //      std::cout << "Failed to load font!" << std::endl;
+    //      return -1;
+    //  }
     
-    //if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
-    //    std::cout << "Failed to load font!" << std::endl;
-    //    return -1;
-    //}
+    if (!font.loadFromFile("/Users/janinechuaching/Desktop/rawr/Inter-Regular.ttf")) {
+       std::cout << "Failed to load font!" << std::endl;
+       return -1;
+    }
 
     // Initialize text labels for the sections
     sf::Text ballsTitle = createLabel("Balls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
@@ -472,6 +472,7 @@ int main() {
                             endY = std::stof(inputBoxes[4].inputString);
                             angle = std::stof(inputBoxes[5].inputString);
                             speed = std::stof(inputBoxes[6].inputString);
+                            
                         }
                         catch (std::invalid_argument const& e) {
                             std::cerr << "Invalid input for X: not a number" << std::endl;
@@ -480,15 +481,19 @@ int main() {
                             std::cerr << "Invalid input for X: out of range" << std::endl;
                         }
 
-                        for (int i = 0; i < N; ++i) {
-                            float t = (float)i / (N - 1); // Calculate interpolation parameter
-                            x = startX + t * (endX - startX); // Interpolate X
-                            y = startY + t * (endY - startY); // Interpolate Y
-                            // std::cout << x << " " << y;
-                            Ball newBall(x, y, radius, color, speed, angle);
-                            addBallSafely(newBall);
-                            //balls.emplace_back(x, y, radius, color, speed, angle);
+                        if (N > 0 && startX >= 0 && startY >= 0 && endX >= 0 && endY >= 0 && speed >= 0 &&  
+                         startX < WINDOW_WIDTH && startY < WINDOW_HEIGHT && endX < WINDOW_WIDTH && endY < WINDOW_HEIGHT) {
+                            for (int i = 0; i < N; ++i) {
+                                float t = (float)i / (N - 1); // Calculate interpolation parameter
+                                x = startX + t * (endX - startX); // Interpolate X
+                                y = startY + t * (endY - startY); // Interpolate Y
+                                Ball newBall(x, y, radius, color, speed, angle);
+                                addBallSafely(newBall);
+                            } 
+                        } else{
+                            std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
                         }
+                    
                         break;
                     case 2: // Handling for Form 2
                         try {
@@ -498,6 +503,7 @@ int main() {
                             startAngle = std::stof(inputBoxes[3].inputString);
                             endAngle = std::stof(inputBoxes[4].inputString);
                             speed = std::stof(inputBoxes[5].inputString);
+                    
                         }   
                         catch (std::invalid_argument const& e) {
                             std::cerr << "Invalid input for X: not a number" << std::endl;
@@ -506,13 +512,19 @@ int main() {
                             std::cerr << "Invalid input for X: out of range" << std::endl;
                         }
 
-                        for (int i = 0; i < N; ++i) {
-                            float t = (float)i / (N - 1); // Calculate interpolation parameter
-                            angle = startAngle + t * (endAngle - startAngle); // Interpolate Angle
-                            // std::cout << angle;
-                            Ball newBall(x, y, radius, color, speed, angle);
-                            addBallSafely(newBall);
+                        if(N > 0 && x >= 0 && y >= 0 && startAngle >= 0 && endAngle >= 0 && speed >= 0 && 
+                        x < WINDOW_WIDTH && y < WINDOW_HEIGHT){
+                            for (int i = 0; i < N; ++i) {
+                                float t = (float)i / (N - 1); // Calculate interpolation parameter
+                                angle = startAngle + t * (endAngle - startAngle); // Interpolate Angle
+                                Ball newBall(x, y, radius, color, speed, angle);
+                                addBallSafely(newBall);
+                            }                  
                         }
+                        else{
+                            std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
+                        }
+            
                         break;
                     case 3: // Handling for Form 3
                         try {
@@ -530,13 +542,18 @@ int main() {
                             std::cerr << "Invalid input for X: out of range" << std::endl;
                         }
 
-                        for (int i = 0; i < N; ++i) {
-                            float t = (float)i / (N - 1); // Calculate interpolation parameter
-                            speed = startVelocity + t * (endVelocity - startVelocity); // Interpolate Velocity
-                            // std::cout << speed;
-                            Ball newBall(x, y, radius, color, speed, angle);
-                            addBallSafely(newBall);
+                        if(N > 0 && x >= 0 && y >= 0 && angle >= 0 && startVelocity >= 0 && endVelocity >= 0 &&
+                        x < WINDOW_WIDTH && y < WINDOW_HEIGHT){
+                            for (int i = 0; i < N; ++i) {
+                                float t = (float)i / (N - 1); // Calculate interpolation parameter
+                                speed = startVelocity + t * (endVelocity - startVelocity); // Interpolate Velocity
+                                Ball newBall(x, y, radius, color, speed, angle);
+                                addBallSafely(newBall);
+                            }
+                        } else {
+                            std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
                         }
+                        
                         break;
                     default:
                         try{
@@ -552,8 +569,14 @@ int main() {
                             std::cerr << "Invalid input for X: out of range" << std::endl;
                         }
                         
-                        Ball newBall(x, y, radius, color, speed, angle);
-                        addBallSafely(newBall);
+                        if(x >= 0 && y >= 0 && angle >= 0 && speed >= 0 &&
+                        x < WINDOW_WIDTH && y < WINDOW_HEIGHT){
+                            Ball newBall(x, y, radius, color, speed, angle);
+                            addBallSafely(newBall);
+                        } else{
+                            std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
+                        }
+                        
                         break;
                     }
 
@@ -567,25 +590,51 @@ int main() {
                 // Check if the "Add" button for walls was clicked
                 if (buttons[1].getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
                     // Get wall input values
-                    float x1 = std::stof(inputBoxes[n_input].inputString);
-                    float y1 = std::stof(inputBoxes[n_input+1].inputString);
-                    float x2 = std::stof(inputBoxes[n_input+2].inputString);
-                    float y2 = std::stof(inputBoxes[n_input+3].inputString);
+                    float x1, y1,x2, y2;
 
-                    // Check if the input values are within the display area
-                    if (displayArea.getGlobalBounds().contains(x1, y1) && displayArea.getGlobalBounds().contains(x2, y2)) {
-                        walls.emplace_back(sf::Vector2f(x1, WINDOW_HEIGHT - y1), sf::Vector2f(x2, WINDOW_HEIGHT - y2)); // Create a new wall and add it to the vector
+                    try{
+                        x1 = std::stof(inputBoxes[n_input].inputString);
+                        y1 = std::stof(inputBoxes[n_input+1].inputString);
+                        x2 = std::stof(inputBoxes[n_input+2].inputString);
+                        y2 = std::stof(inputBoxes[n_input+3].inputString);
+                    }
+                    catch (std::invalid_argument const& e) {
+                        std::cerr << "Invalid input: not a number" << std::endl;
+                    }
+                    catch (std::out_of_range const& e) {
+                        std::cerr << "Invalid input: out of range" << std::endl;
+                    }
                     
-                        // Clear the input fields
-                        for (int i = n_input; i < n_input+4; ++i) {
-                            inputBoxes[i].inputString.clear();
-                            inputBoxes[i].text.setString("");
+                    if(x1 < WINDOW_WIDTH && y1 < WINDOW_HEIGHT && x2 < WINDOW_WIDTH && y2 < WINDOW_HEIGHT)
+                    {
+                        // Check if the input values are within the display area
+                        if (displayArea.getGlobalBounds().contains(x1, y1) && displayArea.getGlobalBounds().contains(x2, y2)) {
+                            walls.emplace_back(sf::Vector2f(x1, WINDOW_HEIGHT - y1), sf::Vector2f(x2, WINDOW_HEIGHT - y2)); // Create a new wall and add it to the vector
+                        
+                            // Clear the input fields
+                            for (int i = n_input; i < n_input+4; ++i) {
+                                inputBoxes[i].inputString.clear();
+                                inputBoxes[i].text.setString("");
+                            }
+                        } else {
+                            std::cout << "Wall coordinates must be within the display area!" << std::endl;
+                            // Clear the input fields
+                            for (int i = n_input; i < n_input+4; ++i) {
+                                inputBoxes[i].inputString.clear();
+                                inputBoxes[i].text.setString("");
+                            }
                         }
+
+                    }else {
+                            std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
+                            // Clear the input fields
+                            for (int i = n_input; i < n_input+4; ++i) {
+                                inputBoxes[i].inputString.clear();
+                                inputBoxes[i].text.setString("");
+                            }
                     }
 
-                    else {
-                        std::cout << "Wall coordinates must be within the display area!" << std::endl;
-                    }
+                    
                 }
 
                 for (auto& box : inputBoxes) {
