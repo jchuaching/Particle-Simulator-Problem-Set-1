@@ -57,3 +57,26 @@ If you encounter any issues related to missing dependencies or configuration, yo
 2. Choose Properties.
 3. Under C/C++, ensure that all include directories are correctly referenced.
 4. Under Linker, ensure that additional library directories and dependencies are correctly referenced.
+
+---
+## How to use the Particle Simulator C++ Program:
+The program should like this when it is running:
+insert picture
+
+In order to add balls, enter valid inputs for the x, y, angle, and velocity. 
+x - represents the x coordinate of the ball/particle (x >= 0 and x is within the width of the window).
+y - represents the y coordinate of the ball/particle (y >= 0 and y is within the height of the window).
+angle - represents the angle where the ball faces (angle >= 0). 
+velocity - represents the velocity of the ball in pixel per second (velocity >= 9). 
+
+In order to add walls, enter valid inputs for the x1, y1, x2, and y2. 
+x1 - represents the x1 coordinate of the wall (x1 >= 0 and x1 is within the width of the window).
+y1 - represents the y1 coordinate of the wall (y1 >= 0 and y1 is within the height of the window).
+x2 - represents the x2 coordinate of the wall (x2 >= 0 and x2 is within the width of the window).
+y2 - represents the y2 coordinate of wall (y2 >= 0 and y2 is within the height of the window).
+
+N - number of particles (N > 0).
+
+The inputs of the user should only be numbers. 
+
+Once you have entered valid inputs, click the add button to add balls/particles or walls.
