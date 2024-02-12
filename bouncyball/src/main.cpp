@@ -362,8 +362,8 @@ int main() {
     }*/
 
     if (!font.loadFromFile("res/Inter-Regular.ttf")) {
-    std::cerr << "Failed to load font!" << std::endl;
-    return -1;
+        std::cerr << "Failed to load font!" << std::endl;
+        return -1;
     }
 
     // Initialize text labels for the sections
