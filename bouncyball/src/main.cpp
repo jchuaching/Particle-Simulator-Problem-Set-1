@@ -840,7 +840,7 @@ void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const s
 // Draws all balls on the window without updating their state, ensuring visual representation is consistent with their physical model.
 void drawBalls(sf::RenderWindow& window) {
     for (const auto& ball : balls) {
-        ball.draw(window);
+        ball.draw(window); 
     }
 }
 
