@@ -64,11 +64,11 @@ If you encounter any issues related to missing dependencies or configuration, yo
 The program should like this when it is running:
 ![GUI Interface](https://github.com/jchuaching/bouncyball/assets/75210705/219ff33e-2814-4355-a770-314bc148f7a3)
 
-In order to **add balls**, enter valid inputs for the x, y, angle, and velocity. <br>
-x - represents the x coordinate of the ball/particle (x >= 0 and x is within the width of the window). <br>
-y - represents the y coordinate of the ball/particle (y >= 0 and y is within the height of the window). <br>
-angle - represents the angle where the ball faces (angle >= 0).  <br>
-velocity - represents the velocity of the ball in pixel per second (velocity >= 9). <be>
+In order to **add particles**, enter valid inputs for the x, y, angle, and velocity. <br>
+x - represents the x coordinate of the particle (x >= 0 and x is within the width of the window). <br>
+y - represents the y coordinate of the particle (y >= 0 and y is within the height of the window). <br>
+angle - represents the angle where the particle faces (angle >= 0).  <br>
+velocity - represents the velocity of the particle in pixel per second (velocity >= 9). <be>
 
 N - number of particles (N > 0). <br>
 
