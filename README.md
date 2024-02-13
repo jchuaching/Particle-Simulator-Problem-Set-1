@@ -80,4 +80,4 @@ y2 - represents the y2 coordinate of wall (y2 >= 0 and y2 is within the height o
 
 The inputs of the user should only be numbers.  <br>
 
-Once you have entered valid inputs, click the add button to add balls/particles or walls.
+Once you have entered valid inputs, **click the "Add" button** to add balls/particles or walls.
