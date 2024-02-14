@@ -6,9 +6,7 @@
 #include <mutex>
 #include <future>
 
-#ifndef M_PI
 #define M_PI 3.14159265358979323846
-#endif
 
 // Constants for the GUI layout
 const unsigned int SIDEBAR_WIDTH = 320;
@@ -30,28 +28,12 @@ class RadioButton;
 class InputBox;
 
 // Function declarations 
-sf::RectangleShape createButton(float x, float y, float width, float height);
+//sf::RectangleShape createButton(float x, float y, float width, float height);
 sf::RectangleShape createTextButton(float x, float y, float width, float height, const std::string& textContent, sf::Font& font, std::vector<sf::Text>& buttonTexts);
 sf::Text createLabel(const std::string& content, sf::Font& font, unsigned int size, float x, float y);
 sf::Vector2f reflect(const sf::Vector2f& velocity, const sf::Vector2f& normal);
 sf::Text createInputLabel(const std::string& content, sf::Font& font, unsigned int size, float x, float y, float boxHeight);
 sf::Vector2f getWallCollision(const Wall& wall);
-void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form);
-void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime);
-void addBallSafely(const Ball& ball);
-void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame);
-void drawBalls(sf::RenderWindow& window);
-void triggerErrorMessage();
-
-// Variables
-std::vector<Wall> walls;
-std::vector<Ball> balls;
-std::mutex vectorMutex; // Mutex to protect shared vectors
-int updateInterval = 5; // Update every 5 frames
-sf::Text errorMessage;
-bool showError = false;
-sf::Clock errorClock; // Tracks how long the error message has been displayed
-const float errorDisplayTime = 3.0f; // Error message display time in seconds
 
 // Wall Class
 // Represents a wall in the simulation, defined by start and end points. It calculates its own shape, size, and orientation based on these points and can draw itself on a render window.
@@ -69,7 +51,7 @@ public:
         shape.setPosition(start);
 
         // Calculation for the angle to rotate the wall
-        float angle = std::atan2(direction.y, direction.x) * 180 / M_PI;
+        float angle = std::atan2(direction.y, direction.x) * 180 / (float)M_PI;
         shape.setRotation(angle);
         shape.setFillColor(slateBlue);
     }
@@ -150,7 +132,7 @@ public:
         shape.setFillColor(color);
 
         // Convert angle from degrees to radians
-        float angleInRadians = angleInDegrees * (M_PI / 180.0f);
+        float angleInRadians = angleInDegrees * ((float)M_PI / 180.0f);
 
         // Calculate velocity components based on speed and angle
         vx = speed * std::cos(angleInRadians);
@@ -269,7 +251,7 @@ public:
         text.setPosition(box.getPosition().x + label.getLocalBounds().width + 10, text.getPosition().y);
 
         if (isActive && cursorVisible) {
-            sf::RectangleShape cursor(sf::Vector2f(2, text.getCharacterSize()));
+            sf::RectangleShape cursor(sf::Vector2f(2, static_cast<float>(text.getCharacterSize())));
             cursor.setFillColor(slateBlue);
             cursor.setPosition(text.getPosition().x + text.getLocalBounds().width + 3, text.getPosition().y);
             window.draw(cursor);
@@ -316,6 +298,24 @@ public:
         label.setPosition(x - label.getLocalBounds().width - 10, y + (box.getSize().y - label.getCharacterSize()) / 2.0f);
     }
 };
+
+// Functions
+void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form);
+void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime);
+void addBallSafely(const Ball& ball);
+void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame);
+void drawBalls(sf::RenderWindow& window);
+void triggerErrorMessage();
+
+// Variables
+std::vector<Wall> walls;
+std::vector<Ball> balls;
+std::mutex vectorMutex; // Mutex to protect shared vectors
+int updateInterval = 5; // Update every 5 frames
+sf::Text errorMessage;
+bool showError = false;
+sf::Clock errorClock; // Tracks how long the error message has been displayed
+const float errorDisplayTime = 3.0f; // Error message display time in seconds
 
 // Main Function
 int main() {
@@ -479,10 +479,12 @@ int main() {
 
                         }
                         catch (std::invalid_argument const& e) {
+                            (void)e;
                             std::cerr << "Invalid input for X: not a number" << std::endl;
                             triggerErrorMessage();
                         }
                         catch (std::out_of_range const& e) {
+                            (void)e;
                             std::cerr << "Invalid input for X: out of range" << std::endl;
                             triggerErrorMessage();
                         }
@@ -514,10 +516,12 @@ int main() {
 
                         }
                         catch (std::invalid_argument const& e) {
+                            (void)e;
                             std::cerr << "Invalid input for X: not a number" << std::endl;
                             triggerErrorMessage();
                         }
                         catch (std::out_of_range const& e) {
+                            (void)e;
                             std::cerr << "Invalid input for X: out of range" << std::endl;
                             triggerErrorMessage();
                         }
@@ -547,10 +551,12 @@ int main() {
                             endVelocity = std::stof(inputBoxes[5].inputString);
                         }
                         catch (std::invalid_argument const& e) {
+                            (void)e;
                             std::cerr << "Invalid input for X: not a number" << std::endl;
                             triggerErrorMessage();
                         }
                         catch (std::out_of_range const& e) {
+                            (void)e;
                             std::cerr << "Invalid input for X: out of range" << std::endl;
                             triggerErrorMessage();
                         }
@@ -578,10 +584,12 @@ int main() {
                             speed = std::stof(inputBoxes[3].inputString);
                         }
                         catch (std::invalid_argument const& e) {
+                            (void)e;
                             std::cerr << "Invalid input for X: not a number" << std::endl;
                             triggerErrorMessage();
                         }
                         catch (std::out_of_range const& e) {
+                            (void)e;
                             std::cerr << "Invalid input for X: out of range" << std::endl;
                             triggerErrorMessage();
                         }
@@ -617,10 +625,12 @@ int main() {
                         y2 = std::stof(inputBoxes[n_input + 3].inputString);
                     }
                     catch (std::invalid_argument const& e) {
+                        (void)e;
                         std::cerr << "Invalid input: not a number" << std::endl;
                         triggerErrorMessage();
                     }
                     catch (std::out_of_range const& e) {
+                        (void)e;
                         std::cerr << "Invalid input: out of range" << std::endl;
                         triggerErrorMessage();
                     }
@@ -657,8 +667,6 @@ int main() {
                             inputBoxes[i].text.setString("");
                         }*/
                     }
-
-
                 }
 
                 for (auto& box : inputBoxes) {
