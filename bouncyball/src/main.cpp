@@ -11,9 +11,9 @@
 #endif
 
 // Constants for the GUI layout
-const unsigned int WINDOW_WIDTH = 1280;
-const unsigned int WINDOW_HEIGHT = 720;
 const unsigned int SIDEBAR_WIDTH = 320;
+const unsigned int WINDOW_WIDTH = 1280 + SIDEBAR_WIDTH;
+const unsigned int WINDOW_HEIGHT = 720;
 const unsigned int INPUT_HEIGHT = 30;
 
 // Color for display
@@ -23,12 +23,35 @@ const sf::Color flashWhite(246, 246, 248);
 const sf::Color slateBlue(110, 110, 110);
 const sf::Color cornFlower(160, 207, 234);
 
+// Class declarations
+class Wall;
+class Ball;
+class RadioButton;
+class InputBox;
+
 // Function declarations 
 sf::RectangleShape createButton(float x, float y, float width, float height);
 sf::RectangleShape createTextButton(float x, float y, float width, float height, const std::string& textContent, sf::Font& font, std::vector<sf::Text>& buttonTexts);
 sf::Text createLabel(const std::string& content, sf::Font& font, unsigned int size, float x, float y);
 sf::Vector2f reflect(const sf::Vector2f& velocity, const sf::Vector2f& normal);
 sf::Text createInputLabel(const std::string& content, sf::Font& font, unsigned int size, float x, float y, float boxHeight);
+sf::Vector2f getWallCollision(const Wall& wall);
+void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form);
+void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime);
+void addBallSafely(const Ball& ball);
+void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame);
+void drawBalls(sf::RenderWindow& window);
+void triggerErrorMessage();
+
+// Variables
+std::vector<Wall> walls;
+std::vector<Ball> balls;
+std::mutex vectorMutex; // Mutex to protect shared vectors
+int updateInterval = 5; // Update every 5 frames
+sf::Text errorMessage;
+bool showError = false;
+sf::Clock errorClock; // Tracks how long the error message has been displayed
+const float errorDisplayTime = 3.0f; // Error message display time in seconds
 
 // Wall Class
 // Represents a wall in the simulation, defined by start and end points. It calculates its own shape, size, and orientation based on these points and can draw itself on a render window.
@@ -56,7 +79,6 @@ public:
     }
 };
 
-
 // Radio Button Class
 // Represents a radio button with an outer circle, an inner circle, and a label. It can draw itself, handle selection/deselection, and detect if it contains a given point (for mouse interaction).
 class RadioButton {
@@ -74,7 +96,7 @@ public:
 
         innerCircle.setRadius(4); // Smaller radius for the inner circle
         // Position to ensure innerCircle remains centered within outerCircle
-        innerCircle.setPosition(x + 4, y + 4); // Adjusted for the new radius
+        innerCircle.setPosition(x + 4, y + 4);
         innerCircle.setFillColor(slateBlue);
 
         // Initially not selected, so inner circle is not visible
@@ -113,8 +135,6 @@ public:
     }
 };
 
-sf::Vector2f getWallNormal(const Wall& wall);
-
 // Ball Class
 // Represents a moving ball in the simulation. It keeps track of its position, velocity, and can calculate its new position based on collisions with boundaries and walls. It can also draw itself and check for line intersections (for collision detection).
 class Ball {
@@ -124,8 +144,7 @@ public:
 
     Ball(float x, float y, float radius, sf::Color color, float speed, float angleInDegrees)
         : shape(radius) {
-        // Invert the y coordinate to match the coordinate system
-        float invertedY = WINDOW_HEIGHT - y; // Subtract y from WINDOW_HEIGHT to invert
+        float invertedY = WINDOW_HEIGHT - y;
 
         shape.setPosition(x, invertedY - radius * 2); // Adjust for radius to ensure the ball spawns from the correct location
         shape.setFillColor(color);
@@ -135,7 +154,7 @@ public:
 
         // Calculate velocity components based on speed and angle
         vx = speed * std::cos(angleInRadians);
-        vy = -speed * std::sin(angleInRadians); // Invert vy because the coordinate system is inverted
+        vy = -speed * std::sin(angleInRadians);
     }
 
     void draw(sf::RenderWindow& window) const {
@@ -189,11 +208,11 @@ public:
         // Wall collision handling
         bool collisionDetected = false;
         sf::Vector2f collisionPoint;
-        sf::Vector2f wallNormal;
+        sf::Vector2f wallCollision;
         for (const auto& wall : walls) {
             if (lineIntersect(startPosition, endPosition, wall.start, wall.end, &collisionPoint)) {
                 collisionDetected = true;
-                wallNormal = getWallNormal(wall);
+                wallCollision = getWallCollision(wall);
                 break;
             }
         }
@@ -201,7 +220,7 @@ public:
         if (collisionDetected) {
             // Reflect the velocity vector off the wall's normal vector
             sf::Vector2f incomingVelocity(vx, vy);
-            sf::Vector2f reflectedVelocity = reflect(incomingVelocity, wallNormal);
+            sf::Vector2f reflectedVelocity = reflect(incomingVelocity, wallCollision);
             vx = reflectedVelocity.x;
             vy = reflectedVelocity.y;
 
@@ -211,14 +230,13 @@ public:
             shape.setPosition(newPosition);
         }
         else {
-            shape.setPosition(endPosition); // move the ball to its new position
+            shape.setPosition(endPosition); // Move the ball to its new position
         }
     }
 };
 
-
 // Input Box Class
-// Represents an interactive input box where users can type in data. It includes a text label, handles keyboard input, cursor visibility, and can be activated or deactivated based on user interaction.
+// Represents an interactive input box where users can type in data. It includes a text label, handles keyboard input, and can be activated or deactivated based on user interaction.
 class InputBox {
 public:
     sf::RectangleShape box;
@@ -299,30 +317,12 @@ public:
     }
 };
 
-// Variables
-std::vector<Wall> walls;
-std::vector<Ball> balls;
-std::mutex vectorMutex; // Mutex to protect shared vectors
-int updateInterval = 5; // Update every 5 frames
-sf::Text errorMessage;
-bool showError = false;
-sf::Clock errorClock; // Tracks how long the error message has been displayed
-const float errorDisplayTime = 3.0f; // Error message display time in seconds
-
-// Functions
-void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form);
-void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime);
-void addBallSafely(const Ball& ball);
-void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame);
-void drawBalls(sf::RenderWindow& window);
-void triggerErrorMessage();
-
 // Main Function
 int main() {
 
     unsigned int frameCount = 0;
     sf::Clock fpsClock;
-    sf::Clock displayClock; // Clock to update the display every 0.5 seconds
+    sf::Clock displayClock; 
     sf::Clock clock;
     sf::Text fpsText;
 
@@ -346,7 +346,7 @@ int main() {
 
     // Define the display area for the simulation
     sf::RectangleShape displayArea(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH, WINDOW_HEIGHT));
-    displayArea.setFillColor(peachFuzz);  // background for the simulation area
+    displayArea.setFillColor(peachFuzz); // Background for the simulation area
     displayArea.setPosition(0, 0);
 
     if (!font.loadFromFile("res/Inter-Regular.ttf")) {
@@ -355,7 +355,7 @@ int main() {
     }
 
     // Initialize text labels for the sections
-    sf::Text ballsTitle = createLabel("Balls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
+    sf::Text ballsTitle = createLabel("Particles", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
     sf::Text wallsTitle = createLabel("Walls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 360 + 70);
 
     // Initialize text label for the "Batch Form:" subtitle
@@ -370,7 +370,7 @@ int main() {
     radioButtons.emplace_back(startX + 2 * radioButtonSpacing, 75, "Form 3", font, 14);
 
     // Create input boxes for Balls
-    float ballInputsStartY = 110; // Makes space for radio buttons
+    float ballInputsStartY = 110; 
     updateInputBoxes(inputBoxes, font, ballInputsStartY, -1);
 
     // Add Ball button with label
@@ -386,7 +386,7 @@ int main() {
     int activeForm = -1;
     float deltaTime = clock.restart().asSeconds();
 
-    //Error Message
+    // Error Message
     errorMessage.setFont(font);
     errorMessage.setString("Input Error");
     errorMessage.setCharacterSize(16);
@@ -712,7 +712,7 @@ int main() {
         }
 
         updateBalls(static_cast<float>(deltaTime), displayArea, walls, frameCount);
-        drawBalls(window); // Draw balls and walls inside the display area
+        drawBalls(window);
 
         for (auto& wall : walls) {
             wall.draw(window);
@@ -749,7 +749,7 @@ int main() {
 
 // FUNCTIONS --------------------------------------------------------------
 
-// Generates a text label at a specified position with a given font, size, and content, setting its color to slateBlue.
+// Generates a text label at a specified position with a given font, size, and content. The color is set to slateBlue.
 sf::Text createLabel(const std::string& content, sf::Font& font, unsigned int size, float x, float y) {
     sf::Text label;
     label.setFont(font);
@@ -760,7 +760,7 @@ sf::Text createLabel(const std::string& content, sf::Font& font, unsigned int si
     return label;
 }
 
-// Creates a text label for input boxes, aligning the text vertically within the input field for better UI consistency.
+// Creates a text label for input boxes, aligning the text vertically within the input field.
 sf::Text createInputLabel(const std::string& content, sf::Font& font, unsigned int size, float x, float y, float boxHeight) {
     sf::Text label;
     label.setFont(font);
@@ -776,18 +776,22 @@ sf::Text createInputLabel(const std::string& content, sf::Font& font, unsigned i
     return label;
 }
 
-// Creates a basic rectangular button with specified dimensions and position, setting its fill color to cornFlower
-sf::RectangleShape createButton(float x, float y, float width, float height) {
+// Creates a rectangular button with specified dimensions and position. The color is set to cornFlower.
+//sf::RectangleShape createButton(float x, float y, float width, float height) {
+//    sf::RectangleShape button;
+//    button.setSize(sf::Vector2f(width, height));
+//    button.setPosition(x, y);
+//    button.setFillColor(cornFlower);
+//    return button;
+//}
+
+// Creates a rectangular button with specified dimensions and position. The color is set to cornFlower. It also includes text on the button, and adds it to a vector for later rendering.
+sf::RectangleShape createTextButton(float x, float y, float width, float height, const std::string& textContent, sf::Font& font, std::vector<sf::Text>& buttonTexts) {
     sf::RectangleShape button;
     button.setSize(sf::Vector2f(width, height));
     button.setPosition(x, y);
     button.setFillColor(cornFlower);
-    return button;
-}
-
-// Helper function that extends createButton to include text on the button, positioning the text centrally within the button and adding it to a vector for later rendering.
-sf::RectangleShape createTextButton(float x, float y, float width, float height, const std::string& textContent, sf::Font& font, std::vector<sf::Text>& buttonTexts) {
-    sf::RectangleShape button = createButton(x, y, width, height);
+    //sf::RectangleShape button = createButton(x, y, width, height);
 
     sf::Text buttonText;
     buttonText.setFont(font);
@@ -809,7 +813,7 @@ sf::Vector2f reflect(const sf::Vector2f& velocity, const sf::Vector2f& normal) {
 }
 
 // Computes the normal (perpendicular) vector to a Wall object, which is used in collision reflection calculations.
-sf::Vector2f getWallNormal(const Wall& wall) {
+sf::Vector2f getWallCollision(const Wall& wall) {
     sf::Vector2f direction = wall.end - wall.start;     // Calculate direction vector of the wall
     sf::Vector2f normal(-direction.y, direction.x);     // Calculate normal (perpendicular) vector
     float length = std::sqrt(normal.x * normal.x + normal.y * normal.y);     // Normalize the normal vector
@@ -825,14 +829,14 @@ void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const s
     }
 }
 
-// Draws all balls on the window without updating their state, ensuring visual representation is consistent with their physical model.
+// Draws all balls on the window.
 void drawBalls(sf::RenderWindow& window) {
     for (const auto& ball : balls) {
         ball.draw(window);
     }
 }
 
-// Helper function that dynamically updates the set of input boxes displayed in the sidebar based on the active form selection, clearing any existing boxes and adding new ones as needed.
+// Function that updates the set of input boxes displayed in the sidebar based on the active form selection (or radio buttons).
 void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form) {
     inputBoxes.clear();
 
@@ -843,11 +847,8 @@ void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float s
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Start Y:", font);
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "End X:", font);
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 140), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "End Y:", font);
-
-        // Keep "Angle:" and "Velocity:" input boxes
-        float nextInputY = startY + 175;
-        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, nextInputY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
-        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, nextInputY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Velocity:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 175), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 210), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Velocity:", font);
     }
     else if (form == 2) {
         // Add new input boxes for "Form 2"
@@ -856,10 +857,7 @@ void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float s
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y:", font);
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Start Angle:", font);
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 140), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "End Angle:", font);
-
-        // Keep "Angle:" and "Velocity:" input boxes
-        float nextInputY = startY + 175;
-        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, nextInputY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Velocity:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 175), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Velocity:", font);
     }
     else if (form == 3) {
         // Add new input boxes for "Form 3"
@@ -868,13 +866,10 @@ void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float s
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y:", font);
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 140), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Start Velocity:", font);
-
-        // Keep "Angle:" and "Velocity:" input boxes
-        float nextInputY = startY + 175;
-        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, nextInputY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "End Velocity:", font);
+        inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 175), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "End Velocity:", font);
     }
     else {
-        // Create input boxes for Balls
+        // Create input boxes for adding 1 ball
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X:", font);
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y:", font);
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
@@ -882,16 +877,15 @@ void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float s
     }
 
     // Create input boxes for Walls
-    float wallInputsStartY = 150 + 240 + 70; // Adjust based on the final position of the Balls input boxes
+    float wallInputsStartY = 460; 
 
-    // Create input boxes for Walls
     inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X1:", font);
     inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y1:", font);
     inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X2:", font);
     inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y2:", font);
 }
 
-// Updates the positions of all Ball objects in parallel using multiple threads to handle large numbers of balls efficiently.
+// Updates the positions of all Ball objects in parallel using multithreading to handle a large numbers of balls efficiently.
 void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime) {
     const size_t numThreads = std::thread::hardware_concurrency();
     const size_t totalBalls = balls.size();
@@ -921,13 +915,13 @@ void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& b
     }
 }
 
-// Safely adds a new ball to the global balls vector using mutex locking to prevent concurrent access issues in a multithreaded environment.
+// Safely adds a new ball to the global balls vector using mutex locking to prevent concurrent access issues with multithreading.
 void addBallSafely(const Ball& ball) {
     std::lock_guard<std::mutex> guard(vectorMutex);
     balls.push_back(ball);
 }
 
-// Allows the error message to be shown when an error input has been placed by the user
+// Allows the error message to be shown when there is an error with the input.
 void triggerErrorMessage() {
     showError = true;
     errorClock.restart();
