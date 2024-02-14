@@ -62,7 +62,7 @@ If you encounter any issues related to missing dependencies or configuration, yo
 
 ## How to use the Particle Simulator C++ Program:
 The program should like this when it is running:
-![GUI Interface](https://github.com/jchuaching/bouncyball/assets/75210705/219ff33e-2814-4355-a770-314bc148f7a3)
+![GUI Interface](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/9ac02abe-96c9-4e89-9e30-cbd95961551a)
 
 In order to **add particles**, enter valid inputs for the x, y, angle, and velocity. <br>
 x - represents the x coordinate of the particle (x >= 0 and x is within the width of the window 1280). <br>
