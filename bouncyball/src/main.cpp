@@ -21,7 +21,7 @@ const sf::Color columbiaBlue(210, 224, 237);
 const sf::Color peachFuzz(255, 215, 194);
 const sf::Color flashWhite(246, 246, 248);
 const sf::Color slateBlue(110, 110, 110);
-const sf::Color cornFlower(160,207,234);
+const sf::Color cornFlower(160, 207, 234);
 
 // Function declarations 
 sf::RectangleShape createButton(float x, float y, float width, float height);
@@ -53,7 +53,7 @@ public:
 
     void draw(sf::RenderWindow& window) const {
         window.draw(shape);
-    } 
+    }
 };
 
 
@@ -65,7 +65,7 @@ public:
     sf::CircleShape innerCircle;
     sf::Text labelText; // Label text for the radio button
     std::string label;
-     bool isSelected;
+    bool isSelected;
 
     RadioButton(float x, float y, std::string labelText, sf::Font& font, unsigned int characterSize = 15) : isSelected(false), label(labelText) {
         outerCircle.setRadius(8); // Smaller radius for the outer circle
@@ -84,7 +84,7 @@ public:
         this->labelText.setString(label);
         this->labelText.setCharacterSize(characterSize);
         this->labelText.setFillColor(slateBlue);
-        
+
         // Position the label right next to the radio button
         this->labelText.setPosition(x + outerCircle.getRadius() * 2 + 5, y);
     }
@@ -104,7 +104,7 @@ public:
     void select() {
         isSelected = true;
     }
-    void deselect(){
+    void deselect() {
         isSelected = false;
     }
 
@@ -115,19 +115,19 @@ public:
 
 sf::Vector2f getWallNormal(const Wall& wall);
 
-// Particle Class
-// Represents a moving particle in the simulation. It keeps track of its position, velocity, and can calculate its new position based on collisions with boundaries and walls. It can also draw itself and check for line intersections (for collision detection).
-class Particle {
+// Ball Class
+// Represents a moving ball in the simulation. It keeps track of its position, velocity, and can calculate its new position based on collisions with boundaries and walls. It can also draw itself and check for line intersections (for collision detection).
+class Ball {
 public:
     sf::CircleShape shape;
-    float vx, vy; 
+    float vx, vy;
 
-    Particle(float x, float y, float radius, sf::Color color, float speed, float angleInDegrees)
-    : shape(radius) {
+    Ball(float x, float y, float radius, sf::Color color, float speed, float angleInDegrees)
+        : shape(radius) {
         // Invert the y coordinate to match the coordinate system
         float invertedY = WINDOW_HEIGHT - y; // Subtract y from WINDOW_HEIGHT to invert
 
-        shape.setPosition(x, invertedY - radius * 2); // Adjust for radius to ensure the particle spawns from the correct location
+        shape.setPosition(x, invertedY - radius * 2); // Adjust for radius to ensure the ball spawns from the correct location
         shape.setFillColor(color);
 
         // Convert angle from degrees to radians
@@ -136,7 +136,7 @@ public:
         // Calculate velocity components based on speed and angle
         vx = speed * std::cos(angleInRadians);
         vy = -speed * std::sin(angleInRadians); // Invert vy because the coordinate system is inverted
-       }
+    }
 
     void draw(sf::RenderWindow& window) const {
         window.draw(shape);
@@ -150,7 +150,7 @@ public:
 
         float s, t;
         s = (-s1_y * (p1.x - p3.x) + s1_x * (p1.y - p3.y)) / (-s2_x * s1_y + s1_x * s2_y);
-        t = ( s2_x * (p1.y - p3.y) - s2_y * (p1.x - p3.x)) / (-s2_x * s1_y + s1_x * s2_y);
+        t = (s2_x * (p1.y - p3.y) - s2_y * (p1.x - p3.x)) / (-s2_x * s1_y + s1_x * s2_y);
 
         if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
             if (intersection != nullptr) {
@@ -160,17 +160,17 @@ public:
             return true;
         }
 
-        return false; 
+        return false;
     }
 
-    // Function to update the particle position and check for boundary collisions
+    // Function to update the ball position and check for boundary collisions
     void update(const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime) {
-        
-        //Calculate the trajectory line of the particle for this frame
+
+        //Calculate the trajectory line of the ball for this frame
         sf::Vector2f startPosition = shape.getPosition();
         sf::Vector2f endPosition = startPosition + sf::Vector2f(vx * deltaTime, vy * deltaTime);
 
-        // Check boundary collision with adjusted particle radius
+        // Check boundary collision with adjusted ball radius
         float leftBound = boundary.getPosition().x + shape.getRadius();
         float rightBound = boundary.getPosition().x + boundary.getSize().x - shape.getRadius() * 2;
         float topBound = boundary.getPosition().y + shape.getRadius();
@@ -192,7 +192,7 @@ public:
         sf::Vector2f wallNormal;
         for (const auto& wall : walls) {
             if (lineIntersect(startPosition, endPosition, wall.start, wall.end, &collisionPoint)) {
-                collisionDetected = true;                 
+                collisionDetected = true;
                 wallNormal = getWallNormal(wall);
                 break;
             }
@@ -205,12 +205,13 @@ public:
             vx = reflectedVelocity.x;
             vy = reflectedVelocity.y;
 
-            // Adjust the particle's position to the point of collision plus a bit back,
+            // Adjust the ball's position to the point of collision plus a bit back,
             // so it won't collide again in the next frame because of numerical errors
             sf::Vector2f newPosition = collisionPoint - (incomingVelocity * deltaTime * 0.5f);
             shape.setPosition(newPosition);
-        } else {
-            shape.setPosition(endPosition); // move the particle to its new position
+        }
+        else {
+            shape.setPosition(endPosition); // move the ball to its new position
         }
     }
 };
@@ -299,8 +300,8 @@ public:
 };
 
 // Variables
-std::vector<Wall> walls; 
-std::vector<Particle> particles;
+std::vector<Wall> walls;
+std::vector<Ball> balls;
 std::mutex vectorMutex; // Mutex to protect shared vectors
 int updateInterval = 5; // Update every 5 frames
 sf::Text errorMessage;
@@ -310,10 +311,10 @@ const float errorDisplayTime = 3.0f; // Error message display time in seconds
 
 // Functions
 void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form);
-void updateParticlesInParallel(std::vector<Particle>& particles, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime);
-void addParticleSafely(const Particle& particle); 
-void updateParticles(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame);
-void drawParticles(sf::RenderWindow& window);
+void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime);
+void addBallSafely(const Ball& ball);
+void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame);
+void drawBalls(sf::RenderWindow& window);
 void triggerErrorMessage();
 
 // Main Function
@@ -322,13 +323,13 @@ int main() {
     unsigned int frameCount = 0;
     sf::Clock fpsClock;
     sf::Clock displayClock; // Clock to update the display every 0.5 seconds
-    sf::Clock clock; 
+    sf::Clock clock;
     sf::Text fpsText;
-    
+
     sf::Font font;
     std::vector<RadioButton> radioButtons;
     std::vector<InputBox> inputBoxes;
-    std::vector<sf::RectangleShape> buttons;  
+    std::vector<sf::RectangleShape> buttons;
     std::vector<sf::Text> buttonTexts;
 
     // Create the main window
@@ -354,9 +355,9 @@ int main() {
     }
 
     // Initialize text labels for the sections
-    sf::Text particlesTitle = createLabel("Particles", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
-    sf::Text wallsTitle = createLabel("Walls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 360+70);
-    
+    sf::Text ballsTitle = createLabel("Balls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 20);
+    sf::Text wallsTitle = createLabel("Walls", font, 20, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 360 + 70);
+
     // Initialize text label for the "Batch Form:" subtitle
     sf::Text batchFormTitle = createLabel("Batch Form:", font, 18, WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 45);
 
@@ -368,30 +369,30 @@ int main() {
     radioButtons.emplace_back(startX + radioButtonSpacing, 75, "Form 2", font, 14);
     radioButtons.emplace_back(startX + 2 * radioButtonSpacing, 75, "Form 3", font, 14);
 
-    // Create input boxes for Particles
-    float particleInputsStartY = 110; // Makes space for radio buttons
-    updateInputBoxes(inputBoxes, font, particleInputsStartY, -1);
+    // Create input boxes for Balls
+    float ballInputsStartY = 110; // Makes space for radio buttons
+    updateInputBoxes(inputBoxes, font, ballInputsStartY, -1);
 
-    // Add Particle button with label
+    // Add Ball button with label
     buttons.push_back(createTextButton(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 360, SIDEBAR_WIDTH - 20, INPUT_HEIGHT, "Add", font, buttonTexts));
     // Add Wall button with label
     buttons.push_back(createTextButton(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, 605, SIDEBAR_WIDTH - 20, INPUT_HEIGHT, "Add", font, buttonTexts));
 
     // Initialize FPS text
     fpsText.setFont(font);
-    fpsText.setCharacterSize(20); 
+    fpsText.setCharacterSize(20);
     fpsText.setFillColor(slateBlue);
     fpsText.setPosition(WINDOW_WIDTH - 210, WINDOW_HEIGHT - 50); // Position it at the top-right corner
     int activeForm = -1;
     float deltaTime = clock.restart().asSeconds();
 
     //Error Message
-    errorMessage.setFont(font); 
+    errorMessage.setFont(font);
     errorMessage.setString("Input Error");
-    errorMessage.setCharacterSize(16); 
+    errorMessage.setCharacterSize(16);
     errorMessage.setFillColor(sf::Color::Red);
     errorMessage.setPosition(WINDOW_WIDTH - SIDEBAR_WIDTH - errorMessage.getLocalBounds().width - 10, 10);
-    
+
     // Main event loop
     while (window.isOpen()) {
         sf::Event event;
@@ -418,9 +419,9 @@ int main() {
                         if (!wasSelected) {
                             radio.select(); // If the clicked radio button was not already selected, select it
                         }
-                
+
                         // If no radio button is selected,revert input boxes to their original state.
-                        if (!radio.isSelected) {     
+                        if (!radio.isSelected) {
                             updateInputBoxes(inputBoxes, font, 110, -1);
                             activeForm = -1;
                         }
@@ -454,16 +455,16 @@ int main() {
                     n_input = 4;
                 }
 
-                // Check if the "Add" button for particles was clicked
+                // Check if the "Add" button for balls was clicked
                 if (buttons[0].getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
-                    
+
                     int N;
                     float x, y, angle, speed;
                     float startX, startY, endX, endY;
                     float startAngle, endAngle;
                     float startVelocity, endVelocity;
-                    float radius = 3.0f; 
-                    sf::Color color = sf::Color{ slateBlue }; 
+                    float radius = 3.0f;
+                    sf::Color color = sf::Color{ slateBlue };
 
                     switch (activeForm) {
                     case 1: // Handling for Form 1
@@ -475,7 +476,7 @@ int main() {
                             endY = std::stof(inputBoxes[4].inputString);
                             angle = std::stof(inputBoxes[5].inputString);
                             speed = std::stof(inputBoxes[6].inputString);
-                            
+
                         }
                         catch (std::invalid_argument const& e) {
                             std::cerr << "Invalid input for X: not a number" << std::endl;
@@ -486,31 +487,32 @@ int main() {
                             triggerErrorMessage();
                         }
 
-                        if (N > 0 && startX >= 0 && startY >= 0 && endX >= 0 && endY >= 0 && speed >= 0 &&  
-                         startX <= WINDOW_WIDTH-SIDEBAR_WIDTH && startY <= WINDOW_HEIGHT && endX <= WINDOW_WIDTH-SIDEBAR_WIDTH && endY <= WINDOW_HEIGHT) {
+                        if (N > 0 && startX >= 0 && startY >= 0 && endX >= 0 && endY >= 0 && speed >= 0 &&
+                            startX <= WINDOW_WIDTH - SIDEBAR_WIDTH && startY <= WINDOW_HEIGHT && endX <= WINDOW_WIDTH - SIDEBAR_WIDTH && endY <= WINDOW_HEIGHT) {
                             for (int i = 0; i < N; ++i) {
                                 float t = (float)i / (N - 1); // Calculate interpolation parameter
                                 x = startX + t * (endX - startX); // Interpolate X
                                 y = startY + t * (endY - startY); // Interpolate Y
-                                Particle newParticle(x, y, radius, color, speed, angle);
-                                addParticleSafely(newParticle);
-                            } 
-                        } else{
+                                Ball newBall(x, y, radius, color, speed, angle);
+                                addBallSafely(newBall);
+                            }
+                        }
+                        else {
                             std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
                             triggerErrorMessage();
                         }
-                    
+
                         break;
                     case 2: // Handling for Form 2
                         try {
                             N = std::stoi(inputBoxes[0].inputString);
-                            x = std::stof(inputBoxes[1].inputString); 
+                            x = std::stof(inputBoxes[1].inputString);
                             y = std::stof(inputBoxes[2].inputString);
                             startAngle = std::stof(inputBoxes[3].inputString);
                             endAngle = std::stof(inputBoxes[4].inputString);
                             speed = std::stof(inputBoxes[5].inputString);
-                    
-                        }   
+
+                        }
                         catch (std::invalid_argument const& e) {
                             std::cerr << "Invalid input for X: not a number" << std::endl;
                             triggerErrorMessage();
@@ -520,24 +522,24 @@ int main() {
                             triggerErrorMessage();
                         }
 
-                        if(N > 0 && x >= 0 && y >= 0 && startAngle >= 0 && endAngle >= 0 && speed >= 0 && 
-                            x <= WINDOW_WIDTH-SIDEBAR_WIDTH && y <= WINDOW_HEIGHT){
+                        if (N > 0 && x >= 0 && y >= 0 && startAngle >= 0 && endAngle >= 0 && speed >= 0 &&
+                            x <= WINDOW_WIDTH - SIDEBAR_WIDTH && y <= WINDOW_HEIGHT) {
                             for (int i = 0; i < N; ++i) {
                                 float t = (float)i / (N - 1); // Calculate interpolation parameter
                                 angle = startAngle + t * (endAngle - startAngle); // Interpolate Angle
-                                Particle newParticle(x, y, radius, color, speed, angle);
-                                addParticleSafely(newParticle);
-                            }                  
+                                Ball newBall(x, y, radius, color, speed, angle);
+                                addBallSafely(newBall);
+                            }
                         }
-                        else{
+                        else {
                             std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
                             triggerErrorMessage();
                         }
-            
+
                         break;
                     case 3: // Handling for Form 3
                         try {
-                            N = std::stoi(inputBoxes[0].inputString); 
+                            N = std::stoi(inputBoxes[0].inputString);
                             x = std::stof(inputBoxes[1].inputString);
                             y = std::stof(inputBoxes[2].inputString);
                             angle = std::stof(inputBoxes[3].inputString);
@@ -553,25 +555,26 @@ int main() {
                             triggerErrorMessage();
                         }
 
-                        if(N > 0 && x >= 0 && y >= 0 && angle >= 0 && startVelocity >= 0 && endVelocity >= 0 &&
-                            x <= WINDOW_WIDTH - SIDEBAR_WIDTH && y <= WINDOW_HEIGHT){
+                        if (N > 0 && x >= 0 && y >= 0 && angle >= 0 && startVelocity >= 0 && endVelocity >= 0 &&
+                            x <= WINDOW_WIDTH - SIDEBAR_WIDTH && y <= WINDOW_HEIGHT) {
                             for (int i = 0; i < N; ++i) {
                                 float t = (float)i / (N - 1); // Calculate interpolation parameter
                                 speed = startVelocity + t * (endVelocity - startVelocity); // Interpolate Velocity
-                                Particle newParticle(x, y, radius, color, speed, angle);
-                                addParticleSafely(newParticle);
+                                Ball newBall(x, y, radius, color, speed, angle);
+                                addBallSafely(newBall);
                             }
-                        } else {
+                        }
+                        else {
                             std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
                             triggerErrorMessage();
                         }
-                        
+
                         break;
                     default:
-                        try{
+                        try {
                             x = std::stof(inputBoxes[0].inputString);
                             y = std::stof(inputBoxes[1].inputString);
-                            angle = std::stof(inputBoxes[2].inputString); 
+                            angle = std::stof(inputBoxes[2].inputString);
                             speed = std::stof(inputBoxes[3].inputString);
                         }
                         catch (std::invalid_argument const& e) {
@@ -582,34 +585,35 @@ int main() {
                             std::cerr << "Invalid input for X: out of range" << std::endl;
                             triggerErrorMessage();
                         }
-                        
-                        if(x >= 0 && y >= 0 && angle >= 0 && speed >= 0 &&
-                            x <= WINDOW_WIDTH - SIDEBAR_WIDTH && y <= WINDOW_HEIGHT){
-                            Particle newParticle(x, y, radius, color, speed, angle);
-                            addParticleSafely(newParticle);
-                        } else{
+
+                        if (x >= 0 && y >= 0 && angle >= 0 && speed >= 0 &&
+                            x <= WINDOW_WIDTH - SIDEBAR_WIDTH && y <= WINDOW_HEIGHT) {
+                            Ball newBall(x, y, radius, color, speed, angle);
+                            addBallSafely(newBall);
+                        }
+                        else {
                             std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
                             triggerErrorMessage();
                         }
-                        
+
                         break;
                     }
 
-                    // Clear the input fields
-                    for (int i = 0; i < n_input; ++i) {
-                        inputBoxes[i].inputString.clear();
-                        inputBoxes[i].text.setString("");
-                    }
+                    //// Clear the input fields
+                    //for (int i = 0; i < n_input; ++i) {
+                    //    inputBoxes[i].inputString.clear();
+                    //    inputBoxes[i].text.setString("");
+                    //}
                 }
 
                 // Check if the "Add" button for walls was clicked
                 if (buttons[1].getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window)))) {
-                    float x1, y1,x2, y2;
+                    float x1, y1, x2, y2;
 
-                    try{
+                    try {
                         x1 = std::stof(inputBoxes[n_input].inputString);
-                        y1 = std::stof(inputBoxes[n_input+1].inputString);
-                        x2 = std::stof(inputBoxes[n_input+2].inputString);
+                        y1 = std::stof(inputBoxes[n_input + 1].inputString);
+                        x2 = std::stof(inputBoxes[n_input + 2].inputString);
                         y2 = std::stof(inputBoxes[n_input + 3].inputString);
                     }
                     catch (std::invalid_argument const& e) {
@@ -620,39 +624,41 @@ int main() {
                         std::cerr << "Invalid input: out of range" << std::endl;
                         triggerErrorMessage();
                     }
-                    
-                    if(x1 < WINDOW_WIDTH - SIDEBAR_WIDTH && y1 < WINDOW_HEIGHT && x2 < WINDOW_WIDTH - SIDEBAR_WIDTH && y2 < WINDOW_HEIGHT)
+
+                    if (x1 < WINDOW_WIDTH - SIDEBAR_WIDTH && y1 < WINDOW_HEIGHT && x2 < WINDOW_WIDTH - SIDEBAR_WIDTH && y2 < WINDOW_HEIGHT)
                     {
                         // Check if the input values are within the display area
                         if (displayArea.getGlobalBounds().contains(x1, y1) && displayArea.getGlobalBounds().contains(x2, y2)) {
                             walls.emplace_back(sf::Vector2f(x1, WINDOW_HEIGHT - y1), sf::Vector2f(x2, WINDOW_HEIGHT - y2)); // Create a new wall and add it to the vector
-                        
+
                             // Clear the input fields
-                            for (int i = n_input; i < n_input+4; ++i) {
+                            /*for (int i = n_input; i < n_input + 4; ++i) {
                                 inputBoxes[i].inputString.clear();
                                 inputBoxes[i].text.setString("");
-                            }
-                        } else {
+                            }*/
+                        }
+                        else {
                             std::cout << "Wall coordinates must be within the display area!" << std::endl;
                             triggerErrorMessage();
                             // Clear the input fields
-                            for (int i = n_input; i < n_input+4; ++i) {
+                            /*for (int i = n_input; i < n_input + 4; ++i) {
                                 inputBoxes[i].inputString.clear();
                                 inputBoxes[i].text.setString("");
-                            }
+                            }*/
                         }
 
-                    }else {
-                            std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
-                            triggerErrorMessage();
-                            // Clear the input fields
-                            for (int i = n_input; i < n_input+4; ++i) {
-                                inputBoxes[i].inputString.clear();
-                                inputBoxes[i].text.setString("");
-                            }
+                    }
+                    else {
+                        std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
+                        triggerErrorMessage();
+                        // Clear the input fields
+                        /*for (int i = n_input; i < n_input + 4; ++i) {
+                            inputBoxes[i].inputString.clear();
+                            inputBoxes[i].text.setString("");
+                        }*/
                     }
 
-                    
+
                 }
 
                 for (auto& box : inputBoxes) {
@@ -663,7 +669,7 @@ int main() {
                         box.setActive(false);
                     }
                 }
-            
+
             }
 
             // Handle text input for the active input box
@@ -674,15 +680,15 @@ int main() {
             }
         }
 
-        // Update particles in parallel
-        updateParticlesInParallel(particles, displayArea, walls, deltaTime);
+        // Update balls in parallel
+        updateBallsInParallel(balls, displayArea, walls, deltaTime);
 
-        window.clear(columbiaBlue); 
+        window.clear(columbiaBlue);
 
         window.draw(displayArea);
 
         // Draw the titles
-        window.draw(particlesTitle);
+        window.draw(ballsTitle);
         window.draw(wallsTitle);
         window.draw(batchFormTitle);
 
@@ -693,10 +699,10 @@ int main() {
 
         // Draw input boxes
         for (auto& box : inputBoxes) {
-            box.update(); 
-            box.draw(window);  
+            box.update();
+            box.draw(window);
         }
-        
+
         // Draw buttons and their labels
         for (auto& button : buttons) {
             window.draw(button);
@@ -705,8 +711,8 @@ int main() {
             window.draw(buttonText);
         }
 
-        updateParticles(static_cast<float>(deltaTime), displayArea, walls, frameCount); 
-        drawParticles(window); // Draw particles and walls inside the display area
+        updateBalls(static_cast<float>(deltaTime), displayArea, walls, frameCount);
+        drawBalls(window); // Draw balls and walls inside the display area
 
         for (auto& wall : walls) {
             wall.draw(window);
@@ -735,7 +741,7 @@ int main() {
             }
         }
 
-        window.display(); 
+        window.display();
     }
 
     return 0;
@@ -786,13 +792,13 @@ sf::RectangleShape createTextButton(float x, float y, float width, float height,
     sf::Text buttonText;
     buttonText.setFont(font);
     buttonText.setString(textContent);
-    buttonText.setCharacterSize(20); 
+    buttonText.setCharacterSize(20);
     buttonText.setFillColor(slateBlue);
     sf::FloatRect textRect = buttonText.getLocalBounds();
     buttonText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
     buttonText.setPosition(x + width / 2.0f, y + height / 2.0f);
 
-    buttonTexts.push_back(buttonText); 
+    buttonTexts.push_back(buttonText);
 
     return button;
 }
@@ -811,25 +817,25 @@ sf::Vector2f getWallNormal(const Wall& wall) {
     return normal;
 }
 
-// Iteratively updates a subset of all particles' positions and checks for collisions to maintain performance across frames.
-void updateParticles(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame) {
-    // Only update a subset of particles to maintain high FPS
-    for (int i = currentFrame % updateInterval; i < particles.size(); i += updateInterval) {
-        particles[i].update(displayArea, walls, deltaTime); // Update the particle's position and check for collisions
+// Iteratively updates a subset of all balls' positions and checks for collisions to maintain performance across frames.
+void updateBalls(float deltaTime, const sf::RectangleShape& displayArea, const std::vector<Wall>& walls, int currentFrame) {
+    // Only update a subset of balls to maintain high FPS
+    for (int i = currentFrame % updateInterval; i < balls.size(); i += updateInterval) {
+        balls[i].update(displayArea, walls, deltaTime); // Update the ball's position and check for collisions
     }
 }
 
-// Draws all particles on the window without updating their state, ensuring visual representation is consistent with their physical model.
-void drawParticles(sf::RenderWindow& window) {
-    for (const auto& particle : particles) {
-        particle.draw(window); 
+// Draws all balls on the window without updating their state, ensuring visual representation is consistent with their physical model.
+void drawBalls(sf::RenderWindow& window) {
+    for (const auto& ball : balls) {
+        ball.draw(window);
     }
 }
 
 // Helper function that dynamically updates the set of input boxes displayed in the sidebar based on the active form selection, clearing any existing boxes and adding new ones as needed.
 void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float startY, int form) {
-    inputBoxes.clear(); 
-    
+    inputBoxes.clear();
+
     if (form == 1) {
         // Add new input boxes for "Form 1"
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "N:", font);
@@ -868,7 +874,7 @@ void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float s
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, nextInputY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "End Velocity:", font);
     }
     else {
-        // Create input boxes for Particles
+        // Create input boxes for Balls
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X:", font);
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 35), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y:", font);
         inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, startY + 70), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Angle:", font);
@@ -876,7 +882,7 @@ void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float s
     }
 
     // Create input boxes for Walls
-    float wallInputsStartY = 150 + 240 + 70; // Adjust based on the final position of the Particles input boxes
+    float wallInputsStartY = 150 + 240 + 70; // Adjust based on the final position of the Balls input boxes
 
     // Create input boxes for Walls
     inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "X1:", font);
@@ -885,28 +891,28 @@ void updateInputBoxes(std::vector<InputBox>& inputBoxes, sf::Font& font, float s
     inputBoxes.emplace_back(sf::Vector2f(WINDOW_WIDTH - SIDEBAR_WIDTH + 10, wallInputsStartY + 105), sf::Vector2f(SIDEBAR_WIDTH - 20, INPUT_HEIGHT), "Y2:", font);
 }
 
-// Updates the positions of all Particle objects in parallel using multiple threads to handle large numbers of particles efficiently.
-void updateParticlesInParallel(std::vector<Particle>& particles, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime) {
+// Updates the positions of all Ball objects in parallel using multiple threads to handle large numbers of balls efficiently.
+void updateBallsInParallel(std::vector<Ball>& balls, const sf::RectangleShape& boundary, const std::vector<Wall>& walls, float deltaTime) {
     const size_t numThreads = std::thread::hardware_concurrency();
-    const size_t totalParticles = particles.size();
-    const size_t chunkSize = totalParticles / numThreads;
-    size_t remainingParticles = totalParticles % numThreads;
+    const size_t totalBalls = balls.size();
+    const size_t chunkSize = totalBalls / numThreads;
+    size_t remainingBalls = totalBalls % numThreads;
 
     std::vector<std::future<void>> futures(numThreads);
 
     size_t startIdx = 0;
     for (size_t i = 0; i < numThreads; ++i) {
-        size_t particlesToProcess = chunkSize + (remainingParticles > 0 ? 1 : 0);
-        if (remainingParticles > 0) {
-            --remainingParticles;
+        size_t ballsToProcess = chunkSize + (remainingBalls > 0 ? 1 : 0);
+        if (remainingBalls > 0) {
+            --remainingBalls;
         }
 
-        size_t endIdx = startIdx + particlesToProcess;
-        futures[i] = std::async(std::launch::async, [startIdx, endIdx, &particles, &boundary, &walls, deltaTime]() {
+        size_t endIdx = startIdx + ballsToProcess;
+        futures[i] = std::async(std::launch::async, [startIdx, endIdx, &balls, &boundary, &walls, deltaTime]() {
             for (size_t j = startIdx; j < endIdx; ++j) {
-                particles[j].update(boundary, walls, deltaTime);
+                balls[j].update(boundary, walls, deltaTime);
             }
-        });
+            });
         startIdx = endIdx;
     }
 
@@ -915,10 +921,10 @@ void updateParticlesInParallel(std::vector<Particle>& particles, const sf::Recta
     }
 }
 
-// Safely adds a new particle to the global particles vector using mutex locking to prevent concurrent access issues in a multithreaded environment.
-void addBParticleSafely(const Particle& particle) {
+// Safely adds a new ball to the global balls vector using mutex locking to prevent concurrent access issues in a multithreaded environment.
+void addBallSafely(const Ball& ball) {
     std::lock_guard<std::mutex> guard(vectorMutex);
-    particles.push_back(particle);
+    balls.push_back(ball);
 }
 
 // Allows the error message to be shown when an error input has been placed by the user
