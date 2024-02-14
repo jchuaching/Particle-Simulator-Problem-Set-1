@@ -23,14 +23,14 @@ Alternatively, you can clone the repository using the command line:
 1. Open a command prompt or Git Bash.
 2. Navigate to the directory where you want to clone the project, e.g., cd Documents.
 3. Use the command
-  ```
-  git clone https://github.com/your-username/bouncyball.git
-  ```
-  , replacing 
-  ```
-  https://github.com/your-username/bouncyball.git
-    ```
-  with the actual URL of the repository.
+```
+git clone https://github.com/your-username/bouncyball.git
+```
+, replacing 
+```
+https://github.com/your-username/bouncyball.git
+```
+with the actual URL of the repository.
 
 ## Step 2: Open the Project
 If you cloned the repository from within Visual Studio, it should be ready to open. Otherwise:
