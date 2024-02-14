@@ -28,7 +28,6 @@ class RadioButton;
 class InputBox;
 
 // Function declarations 
-//sf::RectangleShape createButton(float x, float y, float width, float height);
 sf::RectangleShape createTextButton(float x, float y, float width, float height, const std::string& textContent, sf::Font& font, std::vector<sf::Text>& buttonTexts);
 sf::Text createLabel(const std::string& content, sf::Font& font, unsigned int size, float x, float y);
 sf::Vector2f reflect(const sf::Vector2f& velocity, const sf::Vector2f& normal);
@@ -606,12 +605,6 @@ int main() {
 
                         break;
                     }
-
-                    //// Clear the input fields
-                    //for (int i = 0; i < n_input; ++i) {
-                    //    inputBoxes[i].inputString.clear();
-                    //    inputBoxes[i].text.setString("");
-                    //}
                 }
 
                 // Check if the "Add" button for walls was clicked
@@ -640,32 +633,16 @@ int main() {
                         // Check if the input values are within the display area
                         if (displayArea.getGlobalBounds().contains(x1, y1) && displayArea.getGlobalBounds().contains(x2, y2)) {
                             walls.emplace_back(sf::Vector2f(x1, WINDOW_HEIGHT - y1), sf::Vector2f(x2, WINDOW_HEIGHT - y2)); // Create a new wall and add it to the vector
-
-                            // Clear the input fields
-                            /*for (int i = n_input; i < n_input + 4; ++i) {
-                                inputBoxes[i].inputString.clear();
-                                inputBoxes[i].text.setString("");
-                            }*/
                         }
                         else {
                             std::cout << "Wall coordinates must be within the display area!" << std::endl;
                             triggerErrorMessage();
-                            // Clear the input fields
-                            /*for (int i = n_input; i < n_input + 4; ++i) {
-                                inputBoxes[i].inputString.clear();
-                                inputBoxes[i].text.setString("");
-                            }*/
                         }
 
                     }
                     else {
                         std::cerr << "Invalid input: values must be non-negative and within screen bounds." << std::endl;
                         triggerErrorMessage();
-                        // Clear the input fields
-                        /*for (int i = n_input; i < n_input + 4; ++i) {
-                            inputBoxes[i].inputString.clear();
-                            inputBoxes[i].text.setString("");
-                        }*/
                     }
                 }
 
@@ -674,6 +651,7 @@ int main() {
                         box.setActive(true);
                     }
                     else {
+
                         box.setActive(false);
                     }
                 }
@@ -784,22 +762,12 @@ sf::Text createInputLabel(const std::string& content, sf::Font& font, unsigned i
     return label;
 }
 
-// Creates a rectangular button with specified dimensions and position. The color is set to cornFlower.
-//sf::RectangleShape createButton(float x, float y, float width, float height) {
-//    sf::RectangleShape button;
-//    button.setSize(sf::Vector2f(width, height));
-//    button.setPosition(x, y);
-//    button.setFillColor(cornFlower);
-//    return button;
-//}
-
 // Creates a rectangular button with specified dimensions and position. The color is set to cornFlower. It also includes text on the button, and adds it to a vector for later rendering.
 sf::RectangleShape createTextButton(float x, float y, float width, float height, const std::string& textContent, sf::Font& font, std::vector<sf::Text>& buttonTexts) {
     sf::RectangleShape button;
     button.setSize(sf::Vector2f(width, height));
     button.setPosition(x, y);
     button.setFillColor(cornFlower);
-    //sf::RectangleShape button = createButton(x, y, width, height);
 
     sf::Text buttonText;
     buttonText.setFont(font);
