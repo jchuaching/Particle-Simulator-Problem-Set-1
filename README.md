@@ -76,6 +76,7 @@ Batches can be added when a radio button is selected.<be>
 ![Batch Form 1](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/02010942-b724-4544-a1a2-99f1e8374f4a)
 
 The photo above displays the first form that batches may be added in.
+
 N - number of particles (N > 0). <br>
 Start X - represents the x coordinate of the first particle (x >= 0 and x is within the width of the window 1280). <br>
 Start Y - represents the y coordinate of the first particle (y >= 0 and y is within the height of the window 720). <br>
@@ -86,7 +87,8 @@ Velocity - represents the velocity of the particle in pixel per second (velocity
 
 ![Batch Form 2](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/61bc8773-73c6-4b60-87d1-83c94d3aea63)
 
-The photo above displays the first form that batches may be added in.
+The photo above displays the second form that batches may be added in.
+
 N - number of particles (N > 0). <br>
 X - represents the x coordinate of the particles (x >= 0 and x is within the width of the window 1280). <br>
 Y - represents the y coordinate of the particles (y >= 0 and y is within the height of the window 720). <br>
@@ -95,7 +97,9 @@ End Angle - represents the angle where the last particle faces (angle >= 0).  <b
 Velocity - represents the velocity of the particle in pixel per second (velocity >= 0). <br>
 
 ![Batch Form 3](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/950dfc95-9031-465f-9516-82b2ec6ca589)
-The photo above displays the first form that batches may be added in.
+
+The photo above displays the third form that batches may be added in.
+
 N - number of particles (N > 0). <br>
 X - represents the x coordinate of the particles (x >= 0 and x is within the width of the window 1280). <br>
 Y - represents the y coordinate of the particles (y >= 0 and y is within the height of the window 720). <br>
