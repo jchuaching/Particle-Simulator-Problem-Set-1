@@ -66,6 +66,7 @@ y - represents the y coordinate of the particle (y >= 0 and y is within the heig
 angle - represents the angle where the particle faces (angle >= 0).  <br>
 velocity - represents the velocity of the particle in pixel per second (velocity >= 9). <be>
 
+Batches can be added when a radio button is selected.<br>
 N - number of particles (N > 0). <br>
 
 In order to **add walls**, enter valid inputs for the x1, y1, x2, and y2. <br>
