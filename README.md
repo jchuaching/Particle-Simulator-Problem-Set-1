@@ -74,7 +74,7 @@ Y1 - represents the y1 coordinate of the wall (y1 >= 0 and y1 is within the heig
 X2 - represents the x2 coordinate of the wall (x2 >= 0 and x2 is within the width of the window 1280). <br>
 Y2 - represents the y2 coordinate of wall (y2 >= 0 and y2 is within the height of the window 720). <br>
 
-Batches can be added when a radio button is selected.<be>
+Batches can be added when a radio button is selected.<br>
 ![Batch Form 1](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/02010942-b724-4544-a1a2-99f1e8374f4a)
 
 The photo above displays the first form that batches may be added in.
