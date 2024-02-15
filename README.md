@@ -36,12 +36,13 @@ If you cloned the repository from within Visual Studio, it should be ready to op
 4. Select the bouncyball.sln file and click Open.
 
 ## Step 3: Build the Solution
-5. Once the project is open, go to the Build menu at the top.
+5. Once the project is open, go to the Build menu at the top. 
 6. Select Build Solution (or press Ctrl+Shift+B).
 7. Visual Studio will now compile the project. Make sure there are no errors in the Output window at the bottom.
 
 ## Step 4: Run the Application
-8. After the build is successful, go to the Debug menu.
+8. After the build is successful, make sure that the program is in Release Mode, and then go to the Debug menu.
+   ![Step 8](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/93937f2c-b137-45ef-a4d9-9a6e41013dee)
 9. Click Start Debugging (or press F5) to run the project.
 
 If everything is set up correctly, your application should now start.
