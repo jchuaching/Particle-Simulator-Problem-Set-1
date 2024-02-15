@@ -60,20 +60,48 @@ If you encounter any issues related to missing dependencies or configuration, yo
 The program should like this when it is running:
 ![GUI Interface](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/9ac02abe-96c9-4e89-9e30-cbd95961551a)
 
-In order to **add particles**, enter valid inputs for the x, y, angle, and velocity. <br>
-x - represents the x coordinate of the particle (x >= 0 and x is within the width of the window 1280). <br>
-y - represents the y coordinate of the particle (y >= 0 and y is within the height of the window 720). <br>
-angle - represents the angle where the particle faces (angle >= 0).  <br>
-velocity - represents the velocity of the particle in pixel per second (velocity >= 9). <be>
-
-Batches can be added when a radio button is selected.<br>
-N - number of particles (N > 0). <br>
+In order to **add a particle**, enter valid inputs for the x, y, angle, and velocity. <br>
+X - represents the x coordinate of the particle (x >= 0 and x is within the width of the window 1280). <br>
+Y - represents the y coordinate of the particle (y >= 0 and y is within the height of the window 720). <br>
+Angle - represents the angle where the particle faces (angle >= 0).  <br>
+Velocity - represents the velocity of the particle in pixel per second (velocity >= 0). <br>
 
 In order to **add walls**, enter valid inputs for the x1, y1, x2, and y2. <br>
-x1 - represents the x1 coordinate of the wall (x1 >= 0 and x1 is within the width of the window 1280). <br>
-y1 - represents the y1 coordinate of the wall (y1 >= 0 and y1 is within the height of the window 720). <br>
-x2 - represents the x2 coordinate of the wall (x2 >= 0 and x2 is within the width of the window 1280). <br>
-y2 - represents the y2 coordinate of wall (y2 >= 0 and y2 is within the height of the window 720). <br>
+X1 - represents the x1 coordinate of the wall (x1 >= 0 and x1 is within the width of the window 1280). <br>
+Y1 - represents the y1 coordinate of the wall (y1 >= 0 and y1 is within the height of the window 720). <br>
+X2 - represents the x2 coordinate of the wall (x2 >= 0 and x2 is within the width of the window 1280). <br>
+Y2 - represents the y2 coordinate of wall (y2 >= 0 and y2 is within the height of the window 720). <br>
+
+Batches can be added when a radio button is selected.<be>
+![Batch Form 1](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/02010942-b724-4544-a1a2-99f1e8374f4a)
+
+The photo above displays the first form that batches may be added in.
+N - number of particles (N > 0). <br>
+Start X - represents the x coordinate of the first particle (x >= 0 and x is within the width of the window 1280). <br>
+Start Y - represents the y coordinate of the first particle (y >= 0 and y is within the height of the window 720). <br>
+End X - represents the x coordinate of the last particle (x >= 0 and x is within the width of the window 1280). <br>
+End Y - represents the y coordinate of the last particle (y >= 0 and y is within the height of the window 720). <br>
+Angle - represents the angle where the particle faces (angle >= 0).  <br>
+Velocity - represents the velocity of the particle in pixel per second (velocity >= 0). <br>
+
+![Batch Form 2](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/61bc8773-73c6-4b60-87d1-83c94d3aea63)
+
+The photo above displays the first form that batches may be added in.
+N - number of particles (N > 0). <br>
+X - represents the x coordinate of the particles (x >= 0 and x is within the width of the window 1280). <br>
+Y - represents the y coordinate of the particles (y >= 0 and y is within the height of the window 720). <br>
+Start Angle - represents the angle where the first particle faces (angle >= 0).  <br>
+End Angle - represents the angle where the last particle faces (angle >= 0).  <br>
+Velocity - represents the velocity of the particle in pixel per second (velocity >= 0). <br>
+
+![Batch Form 3](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/950dfc95-9031-465f-9516-82b2ec6ca589)
+The photo above displays the first form that batches may be added in.
+N - number of particles (N > 0). <br>
+X - represents the x coordinate of the particles (x >= 0 and x is within the width of the window 1280). <br>
+Y - represents the y coordinate of the particles (y >= 0 and y is within the height of the window 720). <br>
+Angle - represents the angle where the particle faces (angle >= 0).  <br>
+Start Velocity - represents the velocity of the first particle in pixel per second (velocity >= 0). <br>
+End Velocity - represents the velocity of the last particle in pixel per second (velocity >= 0). <br>
 
 The inputs of the user should only be numbers.  <br>
 
