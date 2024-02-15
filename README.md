@@ -44,7 +44,8 @@ If you cloned the repository from within Visual Studio, it should be ready to op
 8. After the build is successful, make sure that the program is in Release Mode, and then go to the Debug menu.
   ![Step 8](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/93937f2c-b137-45ef-a4d9-9a6e41013dee)
 9. Click Start Without Debugging (or press Ctrl+F5) to run the project.
-  ![Step 9](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/3c467aea-7b4c-46ca-b915-a798bbf36e79)
+  ![Step 9](https://github.com/jchuaching/Particle-Simulator-Problem-Set-1/assets/75210705/98f68845-a3eb-4c8d-9c2d-8ed42d729532)
+
 
 If everything is set up correctly, your application should now start.
 
